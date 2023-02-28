@@ -1,0 +1,4 @@
+{
+    "account": "wdc",
+    "query": "query {attachmentStorage {sizeLimit allowedExtensions uploadUri provider providerParameters}}"
+}

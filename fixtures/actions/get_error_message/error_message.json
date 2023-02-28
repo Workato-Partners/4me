@@ -1,0 +1,23 @@
+{
+	"errors": [
+		{
+			"message": "Field 'field_does_not_exists' doesn't exist on type 'Person'",
+			"locations": [
+				{
+					"line": 1,
+					"column": 14
+				}
+			],
+			"path": [
+				"query",
+				"me",
+				"field_does_not_exists"
+			],
+			"extensions": {
+				"code": "undefinedField",
+				"typeName": "Person",
+				"fieldName": "field_does_not_exists"
+			}
+		}
+	]
+}

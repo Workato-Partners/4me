@@ -1,0 +1,14 @@
+{
+    "account": "widget",
+    "object": "personUpdate{}",
+    "argument_input": {
+      "id": "NG1lLXN0YWdpbmcuY29tL1BlcnNvbi84Mg",
+      "information": "Update via 4me Connector",
+      "clientMutationId": "rspec"
+    },
+    "primitive_fields": "clientMutationId",
+    "nested_fields": "person,errors",
+    "field_person": {
+      "primitive_fields": "id"
+    }
+  }

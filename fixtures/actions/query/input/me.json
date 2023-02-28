@@ -1,0 +1,5 @@
+{
+  "account": "wdc",
+  "object": "me{}",
+  "primitive_fields": "employeeID,id,name,primaryEmail,source,sourceID,vip"
+}
