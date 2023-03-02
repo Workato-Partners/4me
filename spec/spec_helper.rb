@@ -35,7 +35,9 @@ VCR.configure do |config|
 
   config.register_request_matcher :custom_matcher do |request1, request2|
     if request1.uri.include?('https://graphql.') && request1.uri == request2.uri
-      request1.method == request2.method && request1.body == request2.body && request1.headers.except('User-Agent') == request2.headers.except('User-Agent')
+      request1.method == request2.method &&
+        request1.body == request2.body &&
+        request1.headers.except('User-Agent') == request2.headers.except('User-Agent')
     else
       request1.uri == request2.uri
     end

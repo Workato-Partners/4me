@@ -1,18 +1,22 @@
 # frozen_string_literal: true
 
 RSpec.describe 'methods/format_field_hint', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
   let(:settings) { Workato::Connector::Sdk::Settings.from_encrypted_file('settings.yaml.enc', 'master.key') }
 
   describe 'hint with href' do
-    let(:result) { connector.methods.format_field_hint(settings, 'Query fields will be matched against the application schema. <a href="https://developer.4me.com/graphql/" target="_blank">Learn more</a>') }
+    let(:result) do
+      connector.methods.format_field_hint(settings,
+                                          'Query fields will be matched against the application schema. ' \
+                                          '<a href="https://developer.4me.com/graphql/" target="_blank">Learn more</a>')
+    end
 
     it 'contains result' do
       expect(result).to be_present
-      expect(result).to eq('Query fields will be matched against the application schema. <a href=<b>https://developer.4me.com/graphql/</b> target=<b>_blank</b>>Learn more</a>')
+      expect(result).to eq('Query fields will be matched against the application schema. ' \
+        '<a href=<b>https://developer.4me.com/graphql/</b> target=<b>_blank</b>>Learn more</a>')
     end
   end
 

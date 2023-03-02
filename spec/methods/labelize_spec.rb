@@ -1,7 +1,7 @@
+# rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
 RSpec.describe 'methods/labelize', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
@@ -63,5 +63,6 @@ RSpec.describe 'methods/labelize', :vcr do
     let(:deprecated) { true }
     it { is_expected.to eq 'Risk ID (deprecated)' }
   end
-
 end
+
+# rubocop:enable Metrics/BlockLength

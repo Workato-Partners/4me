@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'object_definition/custom_operation_output', :vcr do
-
   # Spec describes the most commons blocks of an object definition.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
@@ -13,7 +12,7 @@ RSpec.describe 'object_definition/custom_operation_output', :vcr do
   describe 'custom operations output' do
     subject(:schema_fields) { object_definition.fields(settings, config_fields) }
     let(:config_fields) { { 'query' => 'query { me { id } }' } }
-    
+
     it 'contains output' do
       expect(output).to be_present
     end
@@ -22,6 +21,5 @@ RSpec.describe 'object_definition/custom_operation_output', :vcr do
       expect(schema_fields.first).to include('label' => 'Me')
       expect(schema_fields.first[:properties].first).to include('label' => 'ID', 'name' => 'id')
     end
-
   end
 end

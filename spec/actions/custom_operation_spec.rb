@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'actions/custom_operation', :vcr do
-
   # Spec describes the most commons blocks of an action. Remove describes that you don't need.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
@@ -22,7 +21,7 @@ RSpec.describe 'actions/custom_operation', :vcr do
     end
 
     it 'contains id account and configurationItems' do
-      expect(output[:people][:nodes].first()).to include('id', 'configurationItems', 'account')
+      expect(output[:people][:nodes].first).to include('id', 'configurationItems', 'account')
     end
   end
 end

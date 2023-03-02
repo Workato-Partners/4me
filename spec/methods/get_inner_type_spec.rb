@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'methods/get_inner_type', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
@@ -18,5 +17,4 @@ RSpec.describe 'methods/get_inner_type', :vcr do
     let(:type) { { 'kind' => 'SCALAR' } }
     it { is_expected.to eq({ 'kind' => 'SCALAR' }) }
   end
-
 end

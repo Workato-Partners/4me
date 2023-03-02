@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'object_definition/custom_operation_input', :vcr do
-
   # Spec describes the most commons blocks of an object definition.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
@@ -12,7 +11,7 @@ RSpec.describe 'object_definition/custom_operation_input', :vcr do
 
   describe 'custom operations input fields' do
     subject(:schema_fields) { object_definition.fields(settings, config_fields) }
-    let(:config_fields) { { } }
+    let(:config_fields) { {} }
 
     it 'account' do
       expect(schema_fields.first).to include('control_type' => 'text')

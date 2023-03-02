@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'methods/is_non_null', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
@@ -28,5 +27,4 @@ RSpec.describe 'methods/is_non_null', :vcr do
     let(:type) { { 'kind' => 'LIST', 'ofType' => { 'kind' => 'SCALAR' } } }
     it { is_expected.to eq false }
   end
-
 end

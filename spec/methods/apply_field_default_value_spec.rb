@@ -1,13 +1,15 @@
+# rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
 RSpec.describe 'methods/apply_field_default_value', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
   let(:settings) { Workato::Connector::Sdk::Settings.from_encrypted_file('settings.yaml.enc', 'master.key') }
   let(:connection) { {} }
-  subject(:apply_field_default_value) { connector.methods.apply_field_default_value(connection, nil, field, default_value) }
+  subject(:apply_field_default_value) do
+    connector.methods.apply_field_default_value(connection, nil, field, default_value)
+  end
 
   context 'applies field default string value' do
     let(:field) { { type: :string, hint: 'hint', optional: false } }
@@ -65,7 +67,9 @@ RSpec.describe 'methods/apply_field_default_value', :vcr do
 
     it 'adds default value to the field' do
       apply_field_default_value
-      expect(field[:default].to_s).to eq("")
+      expect(field[:default].to_s).to eq('')
     end
   end
 end
+
+# rubocop:enable Metrics/BlockLength

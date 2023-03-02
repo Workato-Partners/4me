@@ -1,7 +1,7 @@
+# rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
 RSpec.describe 'connector', :vcr do
-
   # Spec describes the most commons blocks of an connector. Remove describes that you don't need.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
@@ -32,15 +32,17 @@ RSpec.describe 'connector', :vcr do
 
       it 'contains directives' do
         expect(output[:__schema]).to include('directives')
-      end 
+      end
     end
 
     context 'given invalid credentials' do
       let(:settings) { Workato::Connector::Sdk::Settings.from_encrypted_file('invalid_settings.yaml.enc') }
 
       it 'establishes invalid connection' do
-        expect{output}.to raise_error(Workato::Connector::Sdk::RuntimeError)
+        expect { output }.to raise_error(Workato::Connector::Sdk::RuntimeError)
       end
     end
   end
 end
+
+# rubocop:enable Metrics/BlockLength

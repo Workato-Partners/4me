@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'methods/parse_graphql_fields', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
@@ -16,8 +15,7 @@ RSpec.describe 'methods/parse_graphql_fields', :vcr do
 
     it 'contains name and fields' do
       expect(result.first[:name]).to eq('me')
-      expect(result.first[:fields]).to eq( [ {'name' => 'id' }, { 'name' => 'name' } ] )
+      expect(result.first[:fields]).to eq([{ 'name' => 'id' }, { 'name' => 'name' }])
     end
   end
-
 end

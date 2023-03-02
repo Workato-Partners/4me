@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'methods/parse_graphql', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }

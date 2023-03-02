@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'actions/confirm_webhook', :vcr do
-
   # Spec describes the most commons blocks of an action. Remove describes that you don't need.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
@@ -16,5 +15,4 @@ RSpec.describe 'actions/confirm_webhook', :vcr do
   it 'response is empty (http 200)' do
     expect(output).to be_empty
   end
-
 end

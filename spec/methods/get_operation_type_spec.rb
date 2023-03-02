@@ -1,7 +1,7 @@
+# rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
 RSpec.describe 'methods/get_operation_type', :vcr do
-
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
@@ -51,5 +51,6 @@ RSpec.describe 'methods/get_operation_type', :vcr do
       expect(result).to be_falsey
     end
   end
-
 end
+
+# rubocop:enable Metrics/BlockLength

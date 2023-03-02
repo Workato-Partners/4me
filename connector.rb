@@ -1,7 +1,12 @@
-{
-  title: '4me',
-  secure_tunnel: false,
+# rubocop:disable Metrics/BlockLength, Lint/UnusedBlockArgument
+# rubocop:disable Style/IfUnlessModifier
+# rubocop:disable Style/PreferredHashMethods
+# rubocop:disable Style/SymbolProc
+# rubocop:disable Style/SlicingWithRange
 
+# frozen_string_literal: true
+
+{
   connection: {
     fields: [
       {
@@ -49,6 +54,8 @@
       {
         name: 'auth_method',
         control_type: 'select',
+        hint: 'The 4me authentication method',
+        optional: false,
         pick_list: [
           ['Personal Access Token', 'bearer'],
           ['OAuth2 (Client Credentials Grant)', 'oauth2_client_credentials']
@@ -150,19 +157,17 @@
               grant_type: 'client_credentials'
             }.compact
             payload = payload.merge({
-              client_id: connection['client_id'],
-              client_secret: connection['client_secret']
-            })
+                                      client_id: connection['client_id'],
+                                      client_secret: connection['client_secret']
+                                    })
             request = request.payload(payload)
             request.request_format_www_form_urlencoded
           end,
 
           apply: lambda do |connection|
             if current_url.include?('https://graphql.')
-              token_type = connection['token_type'] || 'Bearer'
               access_token = connection['access_token']
-
-              headers(Authorization: "#{token_type} #{access_token}") unless access_token.blank?
+              headers(Authorization: "Bearer #{access_token}") unless access_token.blank?
             end
           end,
 
@@ -242,7 +247,7 @@
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
-      description: lambda do |input, _picklist_label|
+      description: lambda do |input, picklist_label|
         name = input['object']
         name = name[0..-3] if name&.ends_with?('{}')
         label = name&.labelize&.downcase
@@ -269,7 +274,7 @@
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
-      description: lambda do |input, _picklist_label|
+      description: lambda do |input, picklist_label|
         name = input['object']
         name = name[0..-3] if name&.ends_with?('{}')
         label = name&.labelize&.downcase
@@ -302,7 +307,7 @@
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
-      description: lambda do |input, _picklist_label|
+      description: lambda do |input, picklist_label|
         operation_name = input['operation_name']
         if operation_name.blank?
           "Run <span class='provider'>" \
@@ -354,23 +359,30 @@
       execute: lambda do |connection, input|
         account = input&.[]('account')
 
-        attachment_storage = call('run_gql', connection, "query {attachmentStorage {providerParameters, uploadUri}}", nil, account)['attachmentStorage']
+        attachment_storage = call(
+          'run_gql',
+          connection,
+          'query {attachmentStorage {providerParameters, uploadUri}}',
+          nil,
+          account
+        )['attachmentStorage']
         provider_parameters = attachment_storage['providerParameters']
 
         response = post(attachment_storage['uploadUri'])
                    .request_format_multipart_form
                    .payload(
-                      'Content-Type': input['content_type'],
-                      'acl': provider_parameters['acl'],
-                      'key': provider_parameters['key'].sub('${filename}', input['file_name']),
-                      'policy': provider_parameters['policy'],
-                      'success_action_status': provider_parameters['success_action_status'],
-                      'x-amz-algorithm': provider_parameters['x-amz-algorithm'],
-                      'x-amz-credential': provider_parameters['x-amz-credential'],
-                      'x-amz-date': provider_parameters['x-amz-date'],
-                      'x-amz-server-side-encryption': provider_parameters['x-amz-server-side-encryption'],
-                      'x-amz-signature': provider_parameters['x-amz-signature'],
-                      'file': input['file_data'])
+                     'Content-Type': input['content_type'],
+                     'acl': provider_parameters['acl'],
+                     'key': provider_parameters['key'].sub('${filename}', input['file_name']),
+                     'policy': provider_parameters['policy'],
+                     'success_action_status': provider_parameters['success_action_status'],
+                     'x-amz-algorithm': provider_parameters['x-amz-algorithm'],
+                     'x-amz-credential': provider_parameters['x-amz-credential'],
+                     'x-amz-date': provider_parameters['x-amz-date'],
+                     'x-amz-server-side-encryption': provider_parameters['x-amz-server-side-encryption'],
+                     'x-amz-signature': provider_parameters['x-amz-signature'],
+                     'file': input['file_data']
+                   )
                    .response_format_xml
                    .after_error_response do |code, body, headers, message|
           error(body['Error'][0]['Message'][0]['content!'])
@@ -435,7 +447,8 @@
         query_field = {
           name: 'query',
           label: 'Query',
-          hint: 'Query fields will be matched against the application schema.<br><a href="https://developer.4me.com/graphql/" target="_blank">Learn more</a>',
+          hint: 'Query fields will be matched against the application schema.<br>'\
+                '<a href="https://developer.4me.com/graphql/" target="_blank">Learn more</a>',
           multiline: true,
           control_type: 'text-area',
           optional: false,
@@ -453,7 +466,8 @@
         end&.compact
         # if there is more than 1 operation, always ask for the operation name
         if documents.length > 1
-          operation_name_hint = 'Since the document contains multiple operations, you must specify which one to perform.'
+          operation_name_hint = 'Since the document contains multiple operations, ' \
+                                'you must specify which one to perform.'
           if operation_names.length != documents.length
             operation_name_hint = "#{operation_name_hint} " \
                                   'In case you are missing an operation, ' \
@@ -512,16 +526,14 @@
         end
 
         fields.insert(0, {
-            name: 'account',
-            label: 'Account ID',
-            sticky: true,
-            default: connection['account'],
-            optional: false,
-            control_type: 'text',
-            hint: 'The 4me account identifier'
-          }
-        )
-
+                        name: 'account',
+                        label: 'Account ID',
+                        sticky: true,
+                        default: connection['account'],
+                        optional: false,
+                        control_type: 'text',
+                        hint: 'The 4me account identifier'
+                      })
         fields
       end
     },
@@ -572,7 +584,7 @@
     file_upload_input: {
       fields: lambda do |connection, config_fields, object_definitions|
         [
-         {
+          {
             name: 'account',
             label: 'Account ID',
             sticky: true,
@@ -580,7 +592,7 @@
             optional: false,
             control_type: 'text',
             hint: 'The 4me account identifier'
-          }, 
+          },
           {
             name: 'file_name',
             label: 'File name',
@@ -670,7 +682,8 @@
 
     webhook_event: {
       fields: lambda do |connection, config_fields, object_definitions|
-        if config_fields['event_selection'] == 'automation_rule'
+        case config_fields['event_selection']
+        when 'automation_rule'
           [
             { name: 'webhook_id', type: 'integer' },
             { name: 'webhook_nodeID' },
@@ -691,7 +704,7 @@
             ] },
             { name: 'payload', type: 'object', properties: object_definitions['webhook_payload_output'] }
           ]
-        elsif config_fields['event_selection'].match(/^out_of_office_period\./)
+        when /^out_of_office_period\./
           [
             { name: 'webhook_id', type: 'integer' },
             { name: 'webhook_nodeID' },
@@ -724,7 +737,7 @@
               { name: 'account', type: 'object', properties: object_definitions['account'] }
             ] }
           ]
-        elsif config_fields['event_selection'].match(/^time_entry\./)
+        when /^time_entry\./
           [
             { name: 'webhook_id', type: 'integer' },
             { name: 'webhook_nodeID' },
@@ -803,6 +816,7 @@
     webhook_payload_output: {
       fields: lambda do |connection, config_fields, object_definitions|
         next if config_fields['payload_output'].blank?
+
         parse_json(config_fields['payload_output'])
       end
     }
@@ -812,7 +826,7 @@
     ###############################################################
     ### Methods required for 'custom_operation' action
 
-    execute_custom_operation: lambda do |connection, input, eis, _eos|
+    execute_custom_operation: lambda do |connection, input, eis, eos|
       # get variable input data
       variables = {}
       eis&.each do |field|
@@ -837,7 +851,7 @@
       )
     end,
 
-    parse_graphql_type: lambda do |_connection, _messages, type_string|
+    parse_graphql_type: lambda do |connection, messages, type_string|
       m = type_string&.strip&.match(
         /(?<is_list>\[\s*)?(?<name>\w+)(?<required_1>!)?(?<end_list>\s*\])?(?<required_2>!)?/m
       )
@@ -960,7 +974,7 @@
         next if operation_type == 'fragment'
 
         operation_type = 'query' if operation_type.blank?
-        unless ['query', 'mutation'].include? operation_type
+        unless %w[query mutation].include? operation_type
           report_problem&.call "Unsupported operation type '#{operation_type}'"
           next
         end
@@ -1130,10 +1144,7 @@
       output_field
     end,
 
-    create_custom_operation_variables_input_fields: lambda do |
-      connection,
-      report_problem,
-      operation|
+    create_custom_operation_variables_input_fields: lambda do |connection, report_problem, operation|
       operation[:variables]&.map do |variable|
         next if variable.nil?
 
@@ -1184,13 +1195,17 @@
 
     get_error_message: lambda do |connection, response|
       message = nil
+      # rubocop:disable Style/CaseLikeIf
       if response.is_a?(Hash)
-        keys = ['error_message', 'error_messages', 'message', 'messages', 'error', 'errors', 'error_code', 'error_codes', 'status', 'status_code', 'status_codes', 'code', 'codes']
+        keys = %w[error_message error_messages message messages error errors error_code error_codes status status_code
+                  status_codes code codes]
         keys.each do |key|
           value = response[key]
           next if value.nil? || message.present?
+
           message = call('get_error_message', connection, value)
         end
+        # rubocop:enable Style/CaseLikeIf
       elsif response.is_a?(Array)
         messages = response.map do |value|
           call('get_error_message', connection, value)
@@ -1218,7 +1233,7 @@
         error = call('get_error_message', connection, response)
         error(error) if error.present?
       end
-      request = request.after_error_response('.*') do |_code, body, header, message|
+      request = request.after_error_response('.*') do |code, body, header, message|
         content_type = header['content_type'] || ''
         if content_type.include?('application/json')
           response = workato.parse_json(body)
@@ -1227,7 +1242,7 @@
         error("#{message}: #{body}")
       end
       # for some reason, 301 was not handles without 'follow_redirection' (AG)
-      request.follow_redirection.after_response do |_code, body, _res_headers|
+      request.follow_redirection.after_response do |code, body, res_headers|
         handle_errors.call(body)
         body['data']
       end
@@ -1320,7 +1335,7 @@
 
     labelize: lambda do |name, deprecated|
       # replace all non-word characters with a space
-      name = name&.to_s.gsub(/\W|-|_/, ' ')
+      name = name&.to_s&.gsub(/\W|-|_/, ' ')
       name = name.gsub(/\s{2,}/, ' ')
       name = name.strip
       name = name.gsub(/([a-z])([A-Z])/, '\1 \2')
@@ -1519,7 +1534,7 @@
       field
     end,
 
-    apply_field_name_and_label: lambda do |_connection, field, name_prefix, name|
+    apply_field_name_and_label: lambda do |connection, field, name_prefix, name|
       field[:name] = if name_prefix.blank?
                        name
                      else
@@ -1823,15 +1838,14 @@
 
       ## Add 4me Account field
       fields.insert(0, {
-          name: 'account',
-          label: 'Account ID',
-          sticky: true,
-          default: connection['account'],
-          optional: false,
-          control_type: 'text',
-          hint: 'The 4me account identifier'
-        }
-      )
+                      name: 'account',
+                      label: 'Account ID',
+                      sticky: true,
+                      default: connection['account'],
+                      optional: false,
+                      control_type: 'text',
+                      hint: 'The 4me account identifier'
+                    })
 
       fields
     end,
@@ -1980,7 +1994,8 @@
         input_fields << {
           name: 'primitive_fields',
           label: 'Fields to retrieve',
-          hint: 'Select the fields that must be retrieved to improve performance. All fields are returned if left blank.',
+          hint: 'Select the fields that must be retrieved to improve performance. ' \
+                'All fields are returned if left blank.',
           control_type: :multiselect,
           pick_list: primitive_fields_pick_list,
           extends_schema: true,
@@ -1995,6 +2010,7 @@
           # default to non-required fields
           selected_field_names = primitive_fields.map do |sub_field|
             next if call('does_require_argument', sub_field)
+
             sub_field['name']
           end
         end
@@ -2304,7 +2320,7 @@
       field
     end,
 
-    apply_field_default_value: lambda do |_connection, report_problem, field, default_value|
+    apply_field_default_value: lambda do |connection, report_problem, field, default_value|
       hint = field[:hint]
       unless default_value.blank?
         if field[:optional] == false
@@ -2352,7 +2368,6 @@
         field[:default] = formatted_value if formatted_value.present?
       end
       if append_default_value
-        # rubocop:disable Lint/DuplicateBranch
         formatted_value = case field[:type]
                           when :string, nil
                             default_value.to_s
@@ -2364,12 +2379,14 @@
                           when :number
                             default_value.to_s
                           when :boolean
+                            # rubocop:disable Lint/EmptyWhen
                             case default_value.to_s.downcase
                             when 'true', 't', '1', 'yes', 'y', 'Yes'
                             when 'false', 'f', '0', 'no', 'n', 'No'
                             else
                               default_value.to_s
                             end
+                            # rubocop:enable Lint/EmptyWhen
                           when :datetime
                             # TODO: datetime formatting?
                             default_value.to_s
@@ -2387,7 +2404,6 @@
                             )
                             default_value.to_s
                           end
-        # rubocop:enable Lint/DuplicateBranch
         hint = '' if hint.nil?
         default_sentence = "Defaults to #{formatted_value}"
         if hint.present?
@@ -2415,7 +2431,7 @@
       unless value.nil? && optional
         value = field['default'] if value.nil?
 
-        if ['ISO8601Timestamp', 'ISO8601DateTime', 'ISO8601Date'].include?(type) ||
+        if %w[ISO8601Timestamp ISO8601DateTime ISO8601Date].include?(type) ||
            (type == 'string' && control_type != 'select')
           value = "\"#{value}\""
         elsif type == 'array'
@@ -2634,11 +2650,11 @@
 
       help: lambda do |input, picklist_label, connection, webhook_base_url|
         <<~HTML
-        Creates a job when an event is received from 4me. To set this webhook up,
-        you will need to register the webhook below in 4me under "settings" => "webhooks". <br><br>
-        <b>Webhook endpoint URL</b>
-        <b class="tips__highlight">#{webhook_base_url}</b>
-        More information on how to use 4me automation rules and webhooks can be found on the <a href="https://developer.4me.com//v1/workato_connector/" target="_blank">4me developer pages</a>.
+          Creates a job when an event is received from 4me. To set this webhook up,
+          you will need to register the webhook below in 4me under "settings" => "webhooks". <br><br>
+          <b>Webhook endpoint URL</b>
+          <b class="tips__highlight">#{webhook_base_url}</b>
+          More information on how to use 4me automation rules and webhooks can be found on the <a href="https://developer.4me.com//v1/workato_connector/" target="_blank">4me developer pages</a>.
         HTML
       end,
 
@@ -2673,8 +2689,16 @@
       webhook_key: lambda do |connection, input|
         input['webhook_identifier']
       end,
-      
-      webhook_notification: lambda do |input, payload, extended_input_schema, extended_output_schema, headers, params, connection, webhook_subscribe_output|
+
+      webhook_notification: lambda do |
+        input,
+        payload,
+        extended_input_schema,
+        extended_output_schema,
+        headers,
+        params,
+        connection,
+        webhook_subscribe_output|
         if payload['event'] == input['event_selection'] || payload['event'] == 'webhook.verify'
           {
             webhook_id: payload['webhook_id'],
@@ -2690,8 +2714,8 @@
             person_nodeID: payload['person_nodeID'],
             person_name: payload['person_name'],
             instance_name: payload['instance_name'],
-            data: payload.dig('payload'),
-            payload: payload.dig('payload')
+            data: payload['payload'],
+            payload: payload['payload']
           }
         end
       end,
@@ -2796,3 +2820,8 @@
     end
   }
 }
+# rubocop:enable Metrics/BlockLength
+# rubocop:enable Style/IfUnlessModifier
+# rubocop:enable Style/PreferredHashMethods
+# rubocop:enable Style/SymbolProc
+# rubocop:enable Style/SlicingWithRange, Lint/UnusedBlockArgument

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'object_definition/file_upload_output', :vcr do
-
   # Spec describes the most commons blocks of an object definition.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
@@ -15,12 +14,15 @@ RSpec.describe 'object_definition/file_upload_output', :vcr do
     let(:config_fields) { {} }
 
     it 'returns schema definition' do
-      expect(schema_fields).to eq([ 
-        { 'name' => 'key',
-          'label' => 'Key',
-          'hint' => 'Reference object key for the uploaded file.'
-        }
-      ])
+      expect(schema_fields).to eq(
+        [
+          {
+            'name' => 'key',
+            'label' => 'Key',
+            'hint' => 'Reference object key for the uploaded file.'
+          }
+        ]
+      )
     end
   end
 end
