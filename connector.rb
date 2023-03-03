@@ -235,7 +235,7 @@
   end,
 
   webhook_keys: lambda do |params, headers, payload|
-    payload['webhook_nodeID']
+    'default_route'
   end,
 
   actions: {
@@ -2672,7 +2672,33 @@
             name: 'webhook_identifier',
             label: 'Webhook identifier',
             optional: false,
-            hint: 'The webhook GraphQL identifier.'
+            hint: 'The webhook GraphQL identifier. An array of GraphQL identifiers can be set via "Formula" mode.'
+          },
+          {
+            name: 'webhook_policy',
+            label: 'JWT algorithm',
+            control_type: 'select',
+            pick_list: 'webhook_jwt',
+            optional: false,
+            hint: 'The webhook policy JWT algorithm.'
+          },
+          {
+            ngIf: 'input.webhook_policy == "HS256" || input.webhook_policy == "HS384" || ' \
+                  'input.webhook_policy == "HS512"',
+            name: 'webhook_secret_hs',
+            label: 'HMAC secret',
+            control_type: 'password',
+            hint: 'The webhook policy HMAC secret.'
+          },
+          {
+            ngIf: 'input.webhook_policy == "RS256" || input.webhook_policy == "RS384" || ' \
+                  'input.webhook_policy == "RS512" || input.webhook_policy == "ES256" || ' \
+                  'input.webhook_policy == "ES256" || input.webhook_policy == "ES384" || ' \
+                  'input.webhook_policy == "ES512"',
+            name: 'webhook_secret',
+            label: 'Public PEM key',
+            control_type: 'text-area',
+            hint: 'The webhook policy public key.'
           },
           {
             ngIf: 'input.event_selection == "automation_rule"',
@@ -2687,7 +2713,7 @@
         ],
 
       webhook_key: lambda do |connection, input|
-        input['webhook_identifier']
+        'default_route'
       end,
 
       webhook_notification: lambda do |
@@ -2699,23 +2725,42 @@
         params,
         connection,
         webhook_subscribe_output|
-        if payload['event'] == input['event_selection'] || payload['event'] == 'webhook.verify'
+
+        data = if input['webhook_policy'].blank?
+                 payload
+               else
+                 jwt = payload['jwt']
+                 case input['webhook_policy']
+                 when /^HS/
+                   workato.jwt_decode(jwt, input['webhook_secret_hs'], input['webhook_policy'])['payload']['data']
+                 when /^RS/
+                   workato.jwt_decode(jwt, input['webhook_secret'], input['webhook_policy'])['payload']['data']
+                 when /^ES/
+                   workato.jwt_decode(jwt, input['webhook_secret'], input['webhook_policy'])['payload']['data']
+                 end
+               end
+
+        webhook_identifiers = input['webhook_identifier']
+        webhook_identifiers = [webhook_identifiers] unless webhook_identifiers.is_a?(Array)
+
+        if webhook_identifiers.include?(data['webhook_nodeID']) &&
+           (data['event'] == input['event_selection'] || data['event'] == 'webhook.verify')
           {
-            webhook_id: payload['webhook_id'],
-            webhook_nodeID: payload['webhook_nodeID'],
-            account_id: payload['account_id'],
-            account: payload['account'],
-            custom_url: payload['custom_url'],
-            name: payload['name'],
-            event: payload['event'],
-            object_id: payload['object_id'],
-            object_nodeID: payload['object_nodeID'],
-            person_id: payload['person_id'],
-            person_nodeID: payload['person_nodeID'],
-            person_name: payload['person_name'],
-            instance_name: payload['instance_name'],
-            data: payload['payload'],
-            payload: payload['payload']
+            webhook_id: data['webhook_id'],
+            webhook_nodeID: data['webhook_nodeID'],
+            account_id: data['account_id'],
+            account: data['account'],
+            custom_url: data['custom_url'],
+            name: data['name'],
+            event: data['event'],
+            object_id: data['object_id'],
+            object_nodeID: data['object_nodeID'],
+            person_id: data['person_id'],
+            person_nodeID: data['person_nodeID'],
+            person_name: data['person_name'],
+            instance_name: data['instance_name'],
+            data: data['payload'],
+            payload: data['payload']
           }
         end
       end,
@@ -2731,6 +2776,20 @@
   },
 
   pick_lists: {
+    webhook_jwt: lambda do |connection|
+      [
+        ['HMAC using SHA-256', 'HS256'],
+        ['HMAC using SHA-384', 'HS384'],
+        ['HMAC using SHA-512', 'HS512'],
+        ['RSA using SHA-256', 'RS256'],
+        ['RSA using SHA-384', 'RS384'],
+        ['RSA using SHA-512', 'RS512'],
+        ['ECDSA using P-256 and SHA256', 'ES256'],
+        ['ECDSA using P-384 and SHA384', 'ES384'],
+        ['ECDSA using P-521 and SHA512', 'ES512']
+      ]
+    end,
+
     webhook_events: lambda do |connection|
       [
         ['App instance create', 'app_instance.create'],
