@@ -7,6 +7,8 @@
 # frozen_string_literal: true
 
 {
+  title: '4me',
+
   connection: {
     fields: [
       {
@@ -161,7 +163,11 @@
                                       client_secret: connection['client_secret']
                                     })
             request = request.payload(payload)
-            request.request_format_www_form_urlencoded
+            response = request.request_format_www_form_urlencoded
+
+            {
+              access_token: response['access_token']
+            }
           end,
 
           apply: lambda do |connection|
@@ -241,7 +247,7 @@
   actions: {
     query: {
       title: 'Query records',
-      subtitle: 'Retrieve one or more records.',
+      subtitle: 'Retrieve one or more records, e.g. people, configuration items, requets and workflows, in 4me.',
       help: {
         body: 'Use this action to get a single record or search all records that matches your search criteria.',
         learn_more_url: 'https://developer.4me.com/graphql/',
@@ -253,7 +259,7 @@
         label = name&.labelize&.downcase
         "Query <span class='provider'>" \
           "#{label || 'records'}</span> via " \
-          "<span class='provider'>GraphQL</span>"
+          "<span class='provider'>4me</span>"
       end,
       input_fields: lambda do |object_definitions|
         object_definitions['query_input']
@@ -268,9 +274,9 @@
 
     mutation: {
       title: 'Mutate records',
-      subtitle: 'Create, update or delete one or more records.',
+      subtitle: 'Create, update or delete a record, e.g. people, configuration items, requets and workflows, in 4me.',
       help: {
-        body: 'Use this action to create, delete or update records.',
+        body: 'Use this action to create, delete or update a record.',
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
@@ -281,11 +287,11 @@
         if label.present?
           "Perform <span class='provider'>" \
             "#{label}</span> via " \
-            "<span class='provider'>GraphQL</span>"
+            "<span class='provider'>4me</span>"
         else
           "Mutate <span class='provider'>" \
             'records</span> via ' \
-            "<span class='provider'>GraphQL</span>"
+            "<span class='provider'>4me</span>"
         end
       end,
       input_fields: lambda do |object_definitions|
@@ -301,7 +307,7 @@
 
     custom_operation: {
       title: 'Custom action',
-      subtitle: 'Provide and run custom GraphQL operation',
+      subtitle: 'Provide and run custom GraphQL operation, e.g. query people, request and workflows, in 4me.',
       help: {
         body: 'Use this action to run any 4me GraphQL operation.',
         learn_more_url: 'https://developer.4me.com/graphql/',
@@ -312,11 +318,11 @@
         if operation_name.blank?
           "Run <span class='provider'>" \
           'operation</span> via ' \
-          "<span class='provider'>GraphQL</span>"
+          "<span class='provider'>4me</span>"
         else
           "Run <span class='provider'>" \
           "#{operation_name.labelize.downcase}</span> via " \
-          "<span class='provider'>GraphQL</span>"
+          "<span class='provider'>4me</span>"
         end
       end,
       input_fields: lambda do |object_definitions|
@@ -351,20 +357,22 @@
     upload_attachment: {
       title: 'Upload attachment',
       description: 'Upload a file',
+      help: {
+        body: 'Upload a file which can be referenced later as an attachment or embedded image,'\
+              ' e.g. note attachments, in 4me.'
+      },
 
       input_fields: lambda do |object_definitions|
         object_definitions['file_upload_input']
       end,
 
       execute: lambda do |connection, input|
-        account = input&.[]('account')
-
         attachment_storage = call(
           'run_gql',
           connection,
           'query {attachmentStorage {providerParameters, uploadUri}}',
           nil,
-          account
+          input['account']
         )['attachmentStorage']
         provider_parameters = attachment_storage['providerParameters']
 
@@ -443,6 +451,7 @@
           )
           documents = parsed_query[:documents]
         end
+
         documents = [] if documents.nil?
         query_field = {
           name: 'query',
@@ -456,14 +465,13 @@
           extends_schema: true,
           schema_neutral: false
         }
-        fields = [
-          query_field
-        ]
+        fields = [query_field]
 
         # Operation names
         operation_names = documents.map do |doc|
           doc[:operation_name]
         end&.compact
+
         # if there is more than 1 operation, always ask for the operation name
         if documents.length > 1
           operation_name_hint = 'Since the document contains multiple operations, ' \
@@ -840,14 +848,12 @@
         variables[variable_name] = variable_value
       end
 
-      account = input&.[]('account')
-
       call(
         'run_gql',
         connection,
         input['query'],
         variables,
-        account
+        input['account']
       )
     end,
 
@@ -2561,25 +2567,6 @@
       "{#{fields&.join(' ')}}" if fields.present?
     end,
 
-    build_query_field_list_: lambda do |input, eis, eos|
-      fields = eos&.map do |field|
-        field_name = field['name']
-        field_input = input&.[]("field_#{field_name}")
-        output_schema = field['properties']
-        input_schema = eis&.find { |input_field| input_field['name'] == "field_#{field_name}" }
-        input_schema = input_schema&.[]('properties')
-
-        call(
-          'build_query_field',
-          field_name,
-          field_input,
-          input_schema,
-          output_schema
-        )
-      end
-      "{#{fields&.join(' ')}}" if fields.present?
-    end,
-
     build_full_query: lambda do |field_name, input, eis, eos, operation_type|
       is_object = field_name.ends_with?('{}')
       field_name = field_name[0..-3] if is_object
@@ -2613,8 +2600,6 @@
       unless field_name.blank?
         is_object = field_name.ends_with?('{}')
 
-        account = input&.[]('account')
-
         query = call(
           'build_full_query',
           field_name,
@@ -2628,7 +2613,7 @@
           connection,
           query,
           nil,
-          account
+          input['account']
         )
         if is_object
           field_name = field_name[0..-3]
@@ -2642,8 +2627,8 @@
   triggers: {
     new_event: {
       title: 'Webhook event',
-      subtitle: 'Triggers when a Webhook event is received from 4me',
-
+      subtitle: 'Triggers when a selected 4me object, e.g person, is created/updated, ' \
+                'or on an automation rule notification',
       description: lambda do |input, picklist_label|
         "New <span class='provider'>webhook</span> in <span class='provider'>4me</span>"
       end,
@@ -2869,7 +2854,6 @@
         ['Time entry create', 'time_entry.create'],
         ['Time entry delete', 'time_entry.delete'],
         ['Time entry update', 'time_entry.update'],
-        # ['Webhook verify','webhook.verify'],
         ['Workflow create', 'workflow.create'],
         ['Workflow manager changed', 'workflow.manager-changed'],
         ['Workflow note added', 'workflow.note-added'],
