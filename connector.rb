@@ -2,7 +2,6 @@
 # rubocop:disable Style/IfUnlessModifier
 # rubocop:disable Style/PreferredHashMethods
 # rubocop:disable Style/SymbolProc
-# rubocop:disable Style/SlicingWithRange
 
 # frozen_string_literal: true
 
@@ -236,6 +235,7 @@
         }
       }",
       nil,
+      nil,
       connection['account']
     )
   end,
@@ -307,7 +307,7 @@
 
     custom_operation: {
       title: 'Custom action',
-      subtitle: 'Provide and run custom GraphQL operation, e.g. query people, request and workflows, in 4me.',
+      subtitle: 'Provide and run a custom GraphQL operation, e.g. create a person or query people, in 4me.',
       help: {
         body: 'Use this action to run any 4me GraphQL operation.',
         learn_more_url: 'https://developer.4me.com/graphql/',
@@ -372,6 +372,7 @@
           connection,
           'query {attachmentStorage {providerParameters, uploadUri}}',
           nil,
+          nil,
           input['account']
         )['attachmentStorage']
         provider_parameters = attachment_storage['providerParameters']
@@ -403,6 +404,12 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions['file_upload_output']
+      end,
+
+      sample_output: lambda do |object_definitions|
+        {
+          key: 'attachments/5/2023/03/02/605/1677726321..../helloworld.txt'
+        }
       end
     }
   },
@@ -441,23 +448,22 @@
         end
 
         # Custom query documents
+        documents = []
         query = input['query']
-        unless query.blank?
+        if query.present?
           parsed_query = call(
             'parse_graphql',
-            connection,
             report_problem,
             query
           )
           documents = parsed_query[:documents]
         end
 
-        documents = [] if documents.nil?
         query_field = {
           name: 'query',
           label: 'Query',
           hint: 'Query fields will be matched against the application schema.<br>'\
-                '<a href="https://developer.4me.com/graphql/" target="_blank">Learn more</a>',
+                'The operation type and operation name are required.',
           multiline: true,
           control_type: 'text-area',
           optional: false,
@@ -468,9 +474,7 @@
         fields = [query_field]
 
         # Operation names
-        operation_names = documents.map do |doc|
-          doc[:operation_name]
-        end&.compact
+        operation_names = documents.map { |doc| doc[:operation_name] }.compact
 
         # if there is more than 1 operation, always ask for the operation name
         if documents.length > 1
@@ -498,6 +502,7 @@
             schema_neutral: false,
             optional: false
           }
+
           operation_name = input['operation_name']
           if operation_name.present?
             operation = documents.find do |doc|
@@ -507,7 +512,6 @@
         else
           operation = documents.first
         end
-
         if operation.present?
           variable_fields = call(
             'create_custom_operation_variables_input_fields',
@@ -528,8 +532,8 @@
         if problems.present?
           hint = query_field[:hint]
           hint = "#{hint}<br>" unless hint.blank?
-          query_field[:hint] = "#{hint}" \
-                               '<b>Problems:</b><br>' \
+          query_field[:hint] = "#{hint}<br>" \
+                               '<b>Problems</b><br>' \
                                "#{problems.join('<br>')}"
         end
 
@@ -550,18 +554,12 @@
       fields: lambda do |connection, input|
         parsed_query = call(
           'parse_graphql',
-          connection,
           nil,
           input['query']
         )
         documents = parsed_query&.[](:documents)
-        if documents.present? && documents.length > 1
-          operation_name = input['operation_name']
-          operation = parsed_query&.[](:documents)&.find do |doc|
-            doc[:operation_name] == operation_name
-          end
-        elsif documents.present? && documents.length == 1
-          operation = documents.first
+        if documents.present?
+          operation = documents.find { |doc| doc[:operation_name] == input['operation_name'] }
         end
         if operation.present?
           call(
@@ -842,10 +840,10 @@
         next unless field_name.starts_with?('variable_')
 
         # strip for 9 characters
-        variable_name = field_name[9..-1]
+        variable_name = field_name[9..]
 
         variable_value = input&.[]("variable_#{variable_name}")
-        variables[variable_name] = variable_value
+        variables[variable_name] = variable_value unless variable_value.nil?
       end
 
       call(
@@ -853,11 +851,12 @@
         connection,
         input['query'],
         variables,
+        input['operation_name'],
         input['account']
       )
     end,
 
-    parse_graphql_type: lambda do |connection, messages, type_string|
+    parse_graphql_type: lambda do |messages, type_string|
       m = type_string&.strip&.match(
         /(?<is_list>\[\s*)?(?<name>\w+)(?<required_1>!)?(?<end_list>\s*\])?(?<required_2>!)?/m
       )
@@ -874,7 +873,7 @@
       end
     end,
 
-    parse_graphql_variables: lambda do |connection, messages, variables_string|
+    parse_graphql_variables: lambda do |report_problem, variables_string|
       variables = variables_string&.strip&.scan(
         /\$(\w+)\s*:\s*((\w|\[|\]|!)+)\s*(=\s*(.+?))?[,)]/
       )
@@ -882,12 +881,11 @@
         type_string = variable[1]
         type = call(
           'parse_graphql_type',
-          connection,
-          messages,
+          report_problem,
           type_string
         )
         if type.nil?
-          messages&.call("Could not parse type '#{type_string}'")
+          report_problem&.call("Could not parse type '#{type_string}'")
           next
         end
         {
@@ -898,7 +896,7 @@
       end&.compact
     end,
 
-    parse_graphql_fields: lambda do |connection, report_problem, fields_string|
+    parse_graphql_fields: lambda do |report_problem, fields_string|
       fields = fields_string&.scan(
         /(?<options>
            (?<fragmentRef>
@@ -926,7 +924,6 @@
             alias: field[5], # fieldAlias
             fields: call(
               'parse_graphql_fields',
-              connection,
               report_problem,
               field[8] # fieldFields
             )
@@ -940,7 +937,6 @@
             fragment_type: field[11], # inlineFragmentType
             fields: call(
               'parse_graphql_fields',
-              connection,
               report_problem,
               field[12] # inlineFragmentFields
             )&.compact
@@ -951,7 +947,7 @@
       end&.flatten(1)&.compact
     end,
 
-    parse_graphql: lambda do |connection, report_problem, query|
+    parse_graphql: lambda do |report_problem, query|
       # replace datapills by dummy values
       query = query&.gsub(/\#\{_\(.+\)\}/, 'datapill')
 
@@ -963,7 +959,6 @@
       groups = query&.scan(/(?<group>[^{}]*(?<fields>{(?<inner>[^{}]|\g<fields>)*})?)/m)
 
       # parse documents
-      # TODO: are these called 'operations' or 'documents'?
       documents = groups&.map do |group|
         group = group[0]
         m = group.match(/(?<type_and_Rest>
@@ -981,15 +976,15 @@
 
         operation_type = 'query' if operation_type.blank?
         unless %w[query mutation].include? operation_type
-          report_problem&.call "Unsupported operation type '#{operation_type}'"
+          report_problem&.call 'Unsupported operation type, use query or mutation, and specify the operation name.'
           next
         end
 
         {
           operation_type: operation_type,
           operation_name: m['operation_name'],
-          variables: call('parse_graphql_variables', connection, report_problem, m['variables']),
-          fields: call('parse_graphql_fields', connection, report_problem, m['fields'])
+          variables: call('parse_graphql_variables', report_problem, m['variables']),
+          fields: call('parse_graphql_fields', report_problem, m['fields'])
         }.compact
       end&.compact
 
@@ -1008,7 +1003,6 @@
           type: m['fragment_type'],
           fields: call(
             'parse_graphql_fields',
-            connection,
             report_problem,
             m['fields']
           )
@@ -1201,17 +1195,17 @@
 
     get_error_message: lambda do |connection, response|
       message = nil
+
       # rubocop:disable Style/CaseLikeIf
       if response.is_a?(Hash)
-        keys = %w[error_message error_messages message messages error errors error_code error_codes status status_code
-                  status_codes code codes]
+        keys = %w[errors message]
         keys.each do |key|
           value = response[key]
           next if value.nil? || message.present?
 
           message = call('get_error_message', connection, value)
         end
-        # rubocop:enable Style/CaseLikeIf
+      # rubocop:enable Style/CaseLikeIf
       elsif response.is_a?(Array)
         messages = response.map do |value|
           call('get_error_message', connection, value)
@@ -1225,15 +1219,17 @@
     end,
 
     # Perform GraphQL operation
-    run_gql: lambda do |connection, document, variables, account|
+    run_gql: lambda do |connection, document, variables, operation_name, account|
+      account ||= connection['account']
+
       payload = {
         'query' => document,
+        'operationName' => operation_name,
         'variables' => variables
       }.compact
 
       request = post('')
       request.headers('x-4me-Account': account)
-
       request = request.payload(payload)
       handle_errors = lambda do |response|
         error = call('get_error_message', connection, response)
@@ -1331,6 +1327,7 @@
             }
           }
           ",
+          nil,
           nil,
           connection['account']
         )
@@ -1626,59 +1623,11 @@
         description = description.gsub('</p>', '<br>')
         description = description.gsub(/\R/, '<br>')
         description = description.gsub('\\n', '<br>')
-
-        allow_multi_paragraph_hint = false # call('get_allow_multi_paragraph_hint', connection)
-        first_break_index_one = description.index('<br>')
-        first_break_index_two = description.index('<br/>')
-        if !first_break_index_one.nil? && !first_break_index_two.nil?
-          first_break_index = [first_break_index_one, first_break_index_two].min
-        elsif first_break_index_one.nil? && !first_break_index_two.nil?
-          first_break_index = first_break_index_two
-        elsif !first_break_index_one.nil? && first_break_index_two.nil?
-          first_break_index = first_break_index_one
-        end
-        unless first_break_index.nil? || allow_multi_paragraph_hint
-          description = description[0..first_break_index - 1]
-          description = description.strip
-          description = description.gsub(/(.*)\W$/, '\1')
-          documentation_href = nil
-          if documentation_href.blank?
-            documentation_href = nil # call('get_documentation_href', connection)
-          end
-          if documentation_href&.present?
-            anchor = "<a href='#{documentation_href}' target='_blank'>here</a>"
-            description = "#{description}. Click #{anchor} for details."
-          else
-            description = "#{description}. See documentation for details."
-          end
-        end
-
-        description = description.gsub(/\*\*([^*]+)\*\*/, '<b>\1</b>')
-        description = description.gsub(/\*([^*]+)\*/, '<b>\1</b>')
+        description = description.gsub(/\*\*([^*]+)\*\*/, '&#x2022;')
+        description = description.gsub(/\*([^*]+)\*/, '&#x2022;')
         description = description.gsub(/`([^`]+)`/, '<b>\1</b>')
         description = description.gsub(/'([^']+)'/, '<b>\1</b>')
         description = description.gsub(/"([^"]+)"/, '<b>\1</b>')
-
-        # external links
-        external_links = connection.dig('advanced', 'external_links')
-        external_links = connection['external_links'] if external_links.nil?
-        external_links&.each do |link|
-          tag = link['key']
-          base_url = link['value']
-          next if tag.blank? || base_url.blank?
-
-          description = description.gsub(
-            /\[([^\]]+)\]\(#{tag}:([^)]+)\)/,
-            "<a href='#{base_url}\\2' target='_blank'>\\1</a>"
-          )
-        end
-        # raw http(s) links
-        description = description.gsub(
-          /\[([^\]]+)\]\((https?:[^)]+)\)/,
-          "<a href='\\2' target='_blank'>\\1</a>"
-        )
-        # strip remaining links
-        description = description.gsub(/\[([^\]]+)\]\([^)]+\)/, '\1')
       end
       description
     end,
@@ -2380,30 +2329,27 @@
                           when :integer
                             default_value.to_s
                           when :timestamp
-                            # TODO: formatting?
                             default_value.to_s
                           when :number
                             default_value.to_s
                           when :boolean
-                            # rubocop:disable Lint/EmptyWhen
                             case default_value.to_s.downcase
                             when 'true', 't', '1', 'yes', 'y', 'Yes'
+                              true
                             when 'false', 'f', '0', 'no', 'n', 'No'
+                              false
                             else
                               default_value.to_s
                             end
-                            # rubocop:enable Lint/EmptyWhen
                           when :datetime
-                            # TODO: datetime formatting?
                             default_value.to_s
                           when :date
-                            # TODO: date formatting?
                             default_value.to_s
-                          when :object, :array
+                            # when :object, :array
                             # TODO
                             # - parse as JSON?
                             # - OR pass string into create_field_for_type?
-                            default_value.to_s
+                            # default_value.to_s
                           else
                             report_problem&.call(
                               "Enexpected field type: #{field[:type]}"
@@ -2411,7 +2357,7 @@
                             default_value.to_s
                           end
         hint = '' if hint.nil?
-        default_sentence = "Defaults to #{formatted_value}"
+        default_sentence = "Defaults to #{formatted_value}" if formatted_value.present?
         if hint.present?
           hint = "#{hint}." unless hint.ends_with?('.')
           hint = "#{hint} #{default_sentence}"
@@ -2473,7 +2419,7 @@
         next unless arg_name.starts_with?('argument_')
 
         value = input&.[](arg_name)
-        arg_name = arg_name[9..-1]
+        arg_name = arg_name[9..]
         value = call('format_arg', input_field, value)
         next if value.nil?
 
@@ -2494,7 +2440,7 @@
         input_field_name = input_field['name']
 
         if input_field_name.starts_with?('root_')
-          field_name = input_field_name[5..-1]
+          field_name = input_field_name[5..]
           field_input = input&.[](input_field_name)
           output_schema = eos&.find { |field| field['name'] == field_name }&.[]('properties')
           input_schema = input_field&.[]('properties')
@@ -2612,6 +2558,7 @@
           'run_gql',
           connection,
           query,
+          nil,
           nil,
           input['account']
         )
@@ -2867,4 +2814,4 @@
 # rubocop:enable Style/IfUnlessModifier
 # rubocop:enable Style/PreferredHashMethods
 # rubocop:enable Style/SymbolProc
-# rubocop:enable Style/SlicingWithRange, Lint/UnusedBlockArgument
+# rubocop:enable Lint/UnusedBlockArgument

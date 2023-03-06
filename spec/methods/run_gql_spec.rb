@@ -7,7 +7,7 @@ RSpec.describe 'methods/run_gql', :vcr do
   let(:settings) { Workato::Connector::Sdk::Settings.from_encrypted_file('settings.yaml.enc', 'master.key') }
 
   describe 'run me query' do
-    let(:result) { connector.methods.run_gql(settings, '{ me { id name } }', '', 'wdc') }
+    let(:result) { connector.methods.run_gql(settings, '{ me { id name } }', nil, nil, 'wdc') }
 
     it 'contains a result' do
       expect(result).to be_present

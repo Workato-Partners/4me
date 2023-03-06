@@ -7,7 +7,7 @@ RSpec.describe 'methods/parse_graphql_fields', :vcr do
   let(:settings) { Workato::Connector::Sdk::Settings.from_encrypted_file('settings.yaml.enc', 'master.key') }
 
   describe 'parse me query fields' do
-    let(:result) { connector.methods.parse_graphql_fields(settings, nil, '{ me { id name } }') }
+    let(:result) { connector.methods.parse_graphql_fields(nil, '{ me { id name } }') }
 
     it 'contains a result' do
       expect(result).to be_present

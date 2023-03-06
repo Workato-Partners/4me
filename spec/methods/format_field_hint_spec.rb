@@ -25,7 +25,7 @@ RSpec.describe 'methods/format_field_hint', :vcr do
 
     it 'multiline hint' do
       expect(result).to be_present
-      expect(result).to eq('<br>Line1</br><br><br>Line2</br. See documentation for details.')
+      expect(result).to eq('<br>Line1</br><br><br>Line2</br>')
     end
   end
 end

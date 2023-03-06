@@ -11,11 +11,11 @@ RSpec.describe 'methods/apply_field_description', :vcr do
   context 'applies field description' do
     let(:connection) { {} }
     let(:field) { {} }
-    let(:description) { 'foo **bar**' }
+    let(:description) { 'foo **bar** test' }
 
     it 'adds a hint to the field' do
       apply_field_description
-      expect(field[:hint]).to eq('foo <b>bar</b>')
+      expect(field[:hint]).to eq('foo &#x2022; test')
     end
   end
 
