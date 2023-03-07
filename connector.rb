@@ -1,7 +1,8 @@
-# rubocop:disable Metrics/BlockLength, Lint/UnusedBlockArgument
+# rubocop:disable Metrics/BlockLength
 # rubocop:disable Style/IfUnlessModifier
 # rubocop:disable Style/PreferredHashMethods
 # rubocop:disable Style/SymbolProc
+# rubocop:disable Lint/UnusedBlockArgument
 
 # frozen_string_literal: true
 
@@ -463,7 +464,8 @@
           name: 'query',
           label: 'Query',
           hint: 'Query fields will be matched against the application schema.<br>'\
-                'The operation type and operation name are required.',
+                'The operation type and operation name are required.<br>'\
+                'Every variable, including those that are empty or null, will be submitted.',
           multiline: true,
           control_type: 'text-area',
           optional: false,
@@ -843,7 +845,7 @@
         variable_name = field_name[9..]
 
         variable_value = input&.[]("variable_#{variable_name}")
-        variables[variable_name] = variable_value unless variable_value.nil?
+        variables[variable_name] = variable_value
       end
 
       call(
@@ -1718,9 +1720,9 @@
 
     # Returns action input fields
     build_action_input_fields: lambda do |connection, input, operation_type|
-      # TODO: show problems
       problems = []
       report_problem = ->(msg) { problems << msg }
+      error("#{problems.join(', ')}, ") unless problems.empty?
 
       # get top-level fields
       operation_fields = call(
@@ -1855,7 +1857,6 @@
       when 'LIST'
         call('is_non_null', type['ofType'])
       else
-        # TODO: check INPUT_OBJECT for required input fields
         false
       end
     end,
@@ -2335,9 +2336,9 @@
                           when :boolean
                             case default_value.to_s.downcase
                             when 'true', 't', '1', 'yes', 'y', 'Yes'
-                              true
+                              'Yes'
                             when 'false', 'f', '0', 'no', 'n', 'No'
-                              false
+                              'No'
                             else
                               default_value.to_s
                             end
@@ -2345,11 +2346,8 @@
                             default_value.to_s
                           when :date
                             default_value.to_s
-                            # when :object, :array
-                            # TODO
-                            # - parse as JSON?
-                            # - OR pass string into create_field_for_type?
-                            # default_value.to_s
+                          when :object, :array
+                            default_value.to_s
                           else
                             report_problem&.call(
                               "Enexpected field type: #{field[:type]}"
@@ -2575,7 +2573,7 @@
     new_event: {
       title: 'Webhook event',
       subtitle: 'Triggers when a selected 4me object, e.g person, is created/updated, ' \
-                'or on an automation rule notification',
+                'or on an automation rule notification.',
       description: lambda do |input, picklist_label|
         "New <span class='provider'>webhook</span> in <span class='provider'>4me</span>"
       end,
