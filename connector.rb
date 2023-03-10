@@ -844,7 +844,7 @@
         # strip for 9 characters
         variable_name = field_name[9..]
 
-        variable_value = input&.[]("variable_#{variable_name}")
+        variable_value = input["variable_#{variable_name}"]
         variables[variable_name] = variable_value
       end
 
@@ -1058,7 +1058,6 @@
         )
         call(
           'apply_field_name_and_label',
-          connection,
           output_field,
           nil,
           field[:alias] || field[:name]
@@ -1173,7 +1172,6 @@
         )
         call(
           'apply_field_name_and_label',
-          connection,
           variable_field,
           'variable',
           variable[:name]
@@ -1463,7 +1461,7 @@
           'ENUM',
           type['name']
         )
-        pick_list = enum_type&.[]('enumValues')&.map do |e|
+        pick_list = enum_type['enumValues'].map do |e|
           [
             call('labelize', e['name'], e['isDeprecated']),
             e['name']
@@ -1539,7 +1537,7 @@
       field
     end,
 
-    apply_field_name_and_label: lambda do |connection, field, name_prefix, name|
+    apply_field_name_and_label: lambda do |field, name_prefix, name|
       field[:name] = if name_prefix.blank?
                        name
                      else
@@ -1559,7 +1557,6 @@
       unless description.blank?
         field[:hint] = call(
           'format_field_hint',
-          connection,
           description
         )
       end
@@ -1597,7 +1594,6 @@
       )
       call(
         'apply_field_name_and_label',
-        connection,
         field,
         nil,
         input_field['name']
@@ -1610,7 +1606,6 @@
       )
       call(
         'apply_field_default_value',
-        connection,
         report_problem,
         field,
         input_field['defaultValue']
@@ -1618,18 +1613,16 @@
       field
     end,
 
-    format_field_hint: lambda do |connection, description|
+    format_field_hint: lambda do |description|
       if description.present?
         description = description.strip
         description = description.gsub('<p>', '<br>')
         description = description.gsub('</p>', '<br>')
         description = description.gsub(/\R/, '<br>')
         description = description.gsub('\\n', '<br>')
-        description = description.gsub(/\*\*([^*]+)\*\*/, '&#x2022;')
-        description = description.gsub(/\*([^*]+)\*/, '&#x2022;')
+        description = description.gsub(/\*\*([^*]+)\*\*/, '<b>\1</b>')
+        description = description.gsub(/^\s*\*\s/, '&#x2022; ')
         description = description.gsub(/`([^`]+)`/, '<b>\1</b>')
-        description = description.gsub(/'([^']+)'/, '<b>\1</b>')
-        description = description.gsub(/"([^"]+)"/, '<b>\1</b>')
       end
       description
     end,
@@ -1722,7 +1715,6 @@
     build_action_input_fields: lambda do |connection, input, operation_type|
       problems = []
       report_problem = ->(msg) { problems << msg }
-      error("#{problems.join(', ')}, ") unless problems.empty?
 
       # get top-level fields
       operation_fields = call(
@@ -1804,6 +1796,7 @@
                       hint: 'The 4me account identifier'
                     })
 
+      error(problems.join(', ')) unless problems.empty?
       fields
     end,
 
@@ -1838,7 +1831,6 @@
         else
           call(
             'apply_field_name_and_label',
-            connection,
             output_field,
             nil,
             operation_field_name
@@ -1862,16 +1854,9 @@
     end,
 
     does_require_argument: lambda do |field|
-      # get all arguments
-      args = field['args']
-
-      # find a required argument
-      required_argument = args&.find do |arg|
+      field['args']&.any? do |arg|
         call('is_non_null', arg['type'])
       end
-
-      # return true if required argument is found
-      required_argument.present?
     end,
 
     is_primitive_type: lambda do |type|
@@ -1939,7 +1924,7 @@
       primitive_fields = sub_fields.select do |sub_field|
         type = sub_field['type']
         call('is_primitive_type', type)
-      end.compact
+      end
       if primitive_fields.present?
         primitive_fields_pick_list = primitive_fields.map do |sub_field|
           [
@@ -1968,7 +1953,7 @@
             next if call('does_require_argument', sub_field)
 
             sub_field['name']
-          end
+          end.compact
         end
         selected_field_names&.each do |field_name|
           output_field = sub_field_map[field_name]
@@ -1988,7 +1973,6 @@
             }
             call(
               'apply_field_name_and_label',
-              connection,
               f,
               'field',
               field_name
@@ -2042,7 +2026,6 @@
             }
             call(
               'apply_field_name_and_label',
-              connection,
               f,
               'field',
               field_name
@@ -2110,7 +2093,6 @@
         }
         call(
           'apply_field_name_and_label',
-          connection,
           fragment_field,
           'fragment',
           fragment_type_name
@@ -2171,11 +2153,11 @@
           type = sub_field['type']
           next unless call('is_primitive_type', type)
 
-          # exclude from defaults if user input requred
+          # exclude from defaults if user input required
           next if call('does_require_argument', sub_field)
 
           true
-        end.compact
+        end
         primitive_field_names = primitive_fields.map do |sub_field|
           sub_field['name']
         end
@@ -2188,7 +2170,7 @@
       properties = []
       selected_field_names = (primitive_field_names || []) +
                              (nested_field_names || [])
-      selected_field_names&.each do |field_name|
+      selected_field_names.each do |field_name|
         sub_field = all_field_map[field_name]
         next unless sub_field.present?
 
@@ -2200,13 +2182,12 @@
         )
         call(
           'apply_field_name_and_label',
-          connection,
           field,
           nil,
           field_name
         )
         properties << field
-      end&.compact
+      end
 
       # add properties from fragments
       expected_fragment_type_names = input&.[]('expected_fragment_types')&.split(',')
@@ -2223,12 +2204,7 @@
           input&.[]("fragment_#{fragment_type_name}")
         )
         fragment_field[:properties]&.each do |field|
-          # check if field is already in properties
-          next if properties.find do |p|
-            p[:name] == field[:name]
-          end.present?
-
-          properties << field
+          properties << field if properties.none? { |p| p[:name] == field[:name] }
         end
       end
 
@@ -2255,7 +2231,6 @@
       )
       call(
         'apply_field_name_and_label',
-        connection,
         field,
         'argument',
         argument['name']
@@ -2268,7 +2243,6 @@
       )
       call(
         'apply_field_default_value',
-        connection,
         report_problem,
         field,
         argument['defaultValue']
@@ -2276,7 +2250,7 @@
       field
     end,
 
-    apply_field_default_value: lambda do |connection, report_problem, field, default_value|
+    apply_field_default_value: lambda do |report_problem, field, default_value|
       hint = field[:hint]
       unless default_value.blank?
         if field[:optional] == false
@@ -2318,7 +2292,7 @@
                             nil
                           else
                             report_problem&.call(
-                              "Enexpected field type: #{field[:type]}"
+                              "Unexpected field type: #{field[:type]}"
                             )
                           end
         field[:default] = formatted_value if formatted_value.present?
@@ -2350,18 +2324,19 @@
                             default_value.to_s
                           else
                             report_problem&.call(
-                              "Enexpected field type: #{field[:type]}"
+                              "Unexpected field type: #{field[:type]}"
                             )
                             default_value.to_s
                           end
-        hint = '' if hint.nil?
-        default_sentence = "Defaults to #{formatted_value}" if formatted_value.present?
-        if hint.present?
-          hint = "#{hint}." unless hint.ends_with?('.')
-          hint = "#{hint} #{default_sentence}"
-        else
-          hint = default_sentence
-        end
+
+        default_sentence = "Defaults to #{formatted_value}." if formatted_value.present?
+
+        hint = if hint.present?
+                 "#{hint} #{default_sentence}" if default_sentence.present?
+               else
+                 default_sentence
+               end
+        hint = "#{hint}." unless hint&.ends_with?('.')
         field[:hint] = hint
       end
     end,
@@ -2376,17 +2351,15 @@
       end
 
       # treat blank string for optional fields as nil
-      value = nil if value.is_a?(String) && optional && value == ''
+      value = field['default'] if value.blank? && !optional
 
-      unless value.nil? && optional
-        value = field['default'] if value.nil?
-
+      if value.present?
         if %w[ISO8601Timestamp ISO8601DateTime ISO8601Date].include?(type) ||
            (type == 'string' && control_type != 'select')
           value = "\"#{value}\""
         elsif type == 'array'
-          value = [value] unless value.is_a?(Array)
-          value = value&.map do |v|
+          value = Array.wrap(value)
+          value = value.map do |v|
             f = field.merge(
               { 'type' => field['of'] }
             )
@@ -2495,7 +2468,6 @@
           fragment_type_names&.each do |fragment_type_name|
             field_input = input&.[]("fragment_#{fragment_type_name}")
             input_schema = eis&.find { |field| field['name'] == "fragment_#{fragment_type_name}" }&.[]('properties')
-            output_schema = eos
             fragment_fields = call(
               'build_query_field_list',
               field_input,
@@ -2508,7 +2480,7 @@
           fields << '__typename' if fragment_type_names.present?
         end
       end
-      "{#{fields&.join(' ')}}" if fields.present?
+      "{#{fields.join(' ')}}" if fields.present?
     end,
 
     build_full_query: lambda do |field_name, input, eis, eos, operation_type|
@@ -2540,7 +2512,7 @@
     end,
 
     action_execute: lambda do |connection, input, eis, eos, operation_type|
-      field_name = input&.[]('object')
+      field_name = input['object']
       unless field_name.blank?
         is_object = field_name.ends_with?('{}')
 

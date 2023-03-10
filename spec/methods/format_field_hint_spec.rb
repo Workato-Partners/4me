@@ -8,20 +8,17 @@ RSpec.describe 'methods/format_field_hint', :vcr do
 
   describe 'hint with href' do
     let(:result) do
-      connector.methods.format_field_hint(settings,
-                                          'Query fields will be matched against the application schema. ' \
-                                          '<a href="https://developer.4me.com/graphql/" target="_blank">Learn more</a>')
+      connector.methods.format_field_hint('* Query fields will be matched against the application schema.')
     end
 
     it 'contains result' do
       expect(result).to be_present
-      expect(result).to eq('Query fields will be matched against the application schema. ' \
-        '<a href=<b>https://developer.4me.com/graphql/</b> target=<b>_blank</b>>Learn more</a>')
+      expect(result).to eq('&#x2022; Query fields will be matched against the application schema.')
     end
   end
 
   describe 'format field hint' do
-    let(:result) { connector.methods.format_field_hint(settings, '<br>Line1</br>\n<br>Line2</br>') }
+    let(:result) { connector.methods.format_field_hint('<br>Line1</br>\n<br>Line2</br>') }
 
     it 'multiline hint' do
       expect(result).to be_present

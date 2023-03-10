@@ -13,9 +13,9 @@ RSpec.describe 'methods/parse_graphql', :vcr do
       expect(result).to be_present
     end
 
-    it 'contains documents and fragments' do
+    it 'contains documents and no fragments' do
       expect(result[:documents]).to be_present
-      expect(result[:fragments]).to eq([])
+      expect(result[:fragments]).to be_empty
     end
   end
 end

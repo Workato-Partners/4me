@@ -8,7 +8,7 @@ RSpec.describe 'methods/apply_field_default_value', :vcr do
   let(:settings) { Workato::Connector::Sdk::Settings.from_encrypted_file('settings.yaml.enc', 'master.key') }
   let(:connection) { {} }
   subject(:apply_field_default_value) do
-    connector.methods.apply_field_default_value(connection, nil, field, default_value)
+    connector.methods.apply_field_default_value(nil, field, default_value)
   end
 
   context 'applies field default string value' do
@@ -43,7 +43,7 @@ RSpec.describe 'methods/apply_field_default_value', :vcr do
 
   context 'applies field default datetime value' do
     let(:field) { { type: :datetime, hint: 'hint', optional: false } }
-    let(:default_value) { '1980-01-02 11:23:12' }
+    let(:default_value) { '1980-01-02T11:23:12Z' }
 
     it 'adds default value to the field' do
       apply_field_default_value
@@ -67,7 +67,7 @@ RSpec.describe 'methods/apply_field_default_value', :vcr do
 
     it 'adds default value to the field' do
       apply_field_default_value
-      expect(field[:default].to_s).to eq('')
+      expect(field[:default].to_s).to be_blank
     end
   end
 end

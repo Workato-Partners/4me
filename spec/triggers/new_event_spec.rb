@@ -25,7 +25,8 @@ RSpec.describe 'triggers/new_event', :vcr do
     subject(:output) { trigger.dedup(record) }
     let(:record) { { 'account_id' => 'wdc', 'event' => 'automation_rule', 'object_id' => 'abc' } }
     it {
-      expect(output).to include('wdc_automation_rule_abc_')
+      expect(Time).to receive(:now) { Time.utc(2023, 1, 1, 23, 59, 59) }
+      expect(output).to eq('wdc_automation_rule_abc_1672617599.0')
     }
   end
 

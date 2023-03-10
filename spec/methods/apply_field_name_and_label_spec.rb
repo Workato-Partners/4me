@@ -13,7 +13,7 @@ RSpec.describe 'methods/apply_field_name_and_label', :vcr do
 
     subject do
       field[:toggle_field] = toggle_field
-      connector.methods.apply_field_name_and_label(nil, field, 'prefix', 'name')
+      connector.methods.apply_field_name_and_label(field, 'prefix', 'name')
     end
 
     it 'updates the name of the field and toggle field' do
@@ -33,7 +33,7 @@ RSpec.describe 'methods/apply_field_name_and_label', :vcr do
     context 'when name_prefix is blank' do
       subject do
         field[:toggle_field] = toggle_field
-        connector.methods.apply_field_name_and_label(nil, field, '', 'name')
+        connector.methods.apply_field_name_and_label(field, '', 'name')
       end
 
       it 'updates the name of the field and toggle field' do

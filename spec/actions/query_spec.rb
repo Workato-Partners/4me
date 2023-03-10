@@ -21,9 +21,7 @@ RSpec.describe 'actions/query', :vcr do
     end
 
     it 'contains totalCount greater than 0' do
-      # rubocop:disable Style/NumericPredicate
-      expect(output[:totalCount]).to be > 0
-      # rubocop:enable Style/NumericPredicate
+      expect(output[:totalCount]).to be_positive
     end
 
     it 'contains id and configurationItems' do

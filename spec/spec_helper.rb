@@ -20,9 +20,11 @@ RSpec.configure do |config|
 end
 
 VCR.configure do |config|
+  # For Additional troubleshooting on the matchers add the following item to the config.
+  # config.debug_logger = File.open('tape_library.log', 'w')
+
   config.cassette_library_dir = 'tape_library'
   config.hook_into :webmock
-  # config.debug_logger = File.open('tape_library.log', 'w')
   config.cassette_serializers[:encrypted] = Workato::Testing::VCREncryptedCassetteSerializer.new
 
   config.register_request_matcher :headers_without_user_agent do |request1, request2|
@@ -44,10 +46,9 @@ VCR.configure do |config|
   end
 
   config.default_cassette_options = {
-    record: ENV.fetch('VCR_RECORD_MODE', :none).to_sym,
+    record: ENV.fetch('VCR_RECORD_MODE', :once).to_sym,
     decode_compressed_response: false,
     serialize_with: :encrypted,
-    # match_requests_on: %i[uri headers_without_user_agent body]
     match_requests_on: %i[uri custom_matcher]
   }
   config.configure_rspec_metadata!

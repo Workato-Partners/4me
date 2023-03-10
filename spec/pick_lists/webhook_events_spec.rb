@@ -89,7 +89,6 @@ RSpec.describe 'pick_lists/webhook_events', :vcr do
         ['Time entry create', 'time_entry.create'],
         ['Time entry delete', 'time_entry.delete'],
         ['Time entry update', 'time_entry.update'],
-        # ['Webhook verify','webhook.verify'],
         ['Workflow create', 'workflow.create'],
         ['Workflow manager changed', 'workflow.manager-changed'],
         ['Workflow note added', 'workflow.note-added'],

@@ -7,10 +7,7 @@
 /spec/reports/
 /tmp/
 master.key
-tape_library.log
-
-# rspec failure tracking
+settings.yaml.enc
+.rspec
 .rspec_status
-
-/master.key
-/tape_library.log
+tape_library.log
