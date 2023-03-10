@@ -12,18 +12,10 @@ RSpec.describe 'triggers/new_event', :vcr do
   # Or add more fine grained tests for each trigger definition block
   let(:trigger) { connector.triggers.new_event }
 
-  describe 'Run entire trigger with valid input' do
-    subject(:output) { connector.triggers.new_event(input) }
-    let(:input) { JSON.parse(File.read('fixtures/triggers/input/webhook.json')) }
-
-    it 'person.create' do
-      # TODO
-    end
-  end
-
   describe 'dedup' do
     subject(:output) { trigger.dedup(record) }
     let(:record) { { 'account_id' => 'wdc', 'event' => 'automation_rule', 'object_id' => 'abc' } }
+
     it {
       expect(Time).to receive(:now) { Time.utc(2023, 1, 1, 23, 59, 59) }
       expect(output).to eq('wdc_automation_rule_abc_1672617599.0')
