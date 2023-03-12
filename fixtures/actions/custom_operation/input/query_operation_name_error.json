@@ -1,5 +1,5 @@
 {
-    "account": "wdc",
-    "query": "query Query1 ($id: ID!) { node(id: $id) { ... on Person { id name primaryEmail } } }\nquery Query2 ($id: ID!) { node(id: $id) { ... on Person { id name primaryEmail } } }",
-    "variable_id": "d29ya2F0b2Nvbm5lY3Rvci4yMzAxMzEwMjUxMjNANG1lLWRlbW8uY29tL1BlcnNvbi82MDU"
+  "account": "wdc",
+  "query": "query Query1 ($id: ID!) { node(id: $id) { ... on Person { id name primaryEmail } } }\nquery Query2 ($id: ID!) { node(id: $id) { ... on Person { id name primaryEmail } } }",
+  "variable_id": "d29ya2F0b2Nvbm5lY3Rvci4yMzAxMzEwMjUxMjNANG1lLWRlbW8uY29tL1BlcnNvbi82MDU"
 }

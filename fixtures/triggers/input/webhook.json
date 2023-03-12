@@ -1,29 +1,7 @@
 {
-    "webhook_id": 945,
-    "webhook_nodeID": "abc",
-    "account_id": "wdc",
-    "account": "https://mycompany.4me.com",
-    "custom_url": null,
-    "name": "Note added to Request of mycompany",
-    "event": "person.update",
-    "object_id": 219,
-    "object_nodeID": "219",
-    "person_id": 8543,
-    "person_nodeID": 8543,
-    "person_name": "Howard Tanner",
-    "instance_name": "abc",
-    "payload": {
-      "callback": "https://api.4me.com/v1",
-      "source": "self service",
-      "member": {
-        "name": "Tom Edwards",
-        "id": 8529
-      },
-      "status": "workflow_pending",
-      "team": {
-        "id": 372,
-        "name": "End-User Support, Houston"
-      }
-    }
-  }
-  
+  "event_selection": "automation_rule",
+  "webhook_identifier": "NG1lMjQuMjIxMjExMDAxMzIzQDRtZS1kZW1vLmNvbS9XZWJob29rLzM",
+  "webhook_policy": "RS256",
+  "webhook_secret": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvor9icVclFWajces6dOc\ngnOON4poPL0GG5anXVhRLTfks9bO9Kf02RQKPNdMkt0NMs0P+3Jop571fS3DF/Ly\nb+KW+ALvMVsNGwrDsQOW8h1Xge3+1HKDWQvJlPhNtLrZbY+3q0xbVhzBdBx62kxg\nxmzGJrsZ4oiNXp2HACvTQPHLlExKgKcNPhWvTRYfe3+oZ9ywheTa3GVQr8+nDE7R\nVjDN1+43LWDJYuQGR0O8DwGcqsHLL7b1i2VjEAUhNgSSJfhFX3jIdIbb7rPM45aG\nzxYPZOoQJbzfBsesUuaBoJqTHOJv8g2/nMPu5OPVoZnx78ZuGFV+RvyjGRIkW4US\nOwIDAQAB\n-----END PUBLIC KEY-----",
+  "payload_output": "[]"
+}

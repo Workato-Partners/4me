@@ -1,0 +1,35 @@
+{
+  "account": "wdc",
+  "object": "services{}",
+  "argument_first": "10",
+  "argument_view": "all",
+  "nested_fields": "nodes",
+  "field_nodes": {
+    "nested_fields": "account,serviceInstances,serviceLevelAgreements,serviceOfferings",
+    "primitive_fields": "name,id,description,disabled",
+    "field_account": {
+      "primitive_fields": "id,name"
+    },
+    "field_serviceInstances": {
+      "argument_first": "10",
+      "nested_fields": "nodes",
+      "field_nodes": {
+        "primitive_fields": "id,name,status"
+      }
+    },
+    "field_serviceLevelAgreements": {
+      "argument_first": "10",
+      "nested_fields": "nodes",
+      "field_nodes": {
+        "primitive_fields": "id,name,status"
+      }
+    },
+    "field_serviceOfferings": {
+      "argument_first": "10",
+      "nested_fields": "nodes",
+      "field_nodes": {
+        "primitive_fields": "id,name,performance,reliability,reviewFrequency,summary,status"
+      }
+    }
+  }
+}

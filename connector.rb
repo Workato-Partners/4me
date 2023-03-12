@@ -156,12 +156,10 @@
             request = post(token_url)
             request.headers('x-4me-Account': connection['account'])
             payload = {
-              grant_type: 'client_credentials'
-            }.compact
-            payload = payload.merge({
-                                      client_id: connection['client_id'],
-                                      client_secret: connection['client_secret']
-                                    })
+              grant_type: 'client_credentials',
+              client_id: connection['client_id'],
+              client_secret: connection['client_secret']
+            }
             request = request.payload(payload)
             response = request.request_format_www_form_urlencoded
 
@@ -1987,6 +1985,7 @@
         type = sub_field['type']
         call('is_primitive_type', type)
       end.compact
+
       if nested_fields.present?
         related_fields_pick_list = nested_fields.map do |sub_field|
           [
@@ -2070,48 +2069,46 @@
           sticky: true,
           delimiter: ','
         }
-      end
-      # get user input
-      selected_fragment_types = input&.[]('expected_fragment_types')&.split(',')
-      selected_fragment_types&.each do |fragment_type_name|
-        # get schema type for selected object
-        schema_type = possible_types.find do |type|
-          type['name'] == fragment_type_name
-        end
-        # skip if type name is not in list of possible types
-        unless fragment_type_name.present?
-          report_problem&.call(
-            "Object '#{fragment_type_name}' not found in list of possible types"
+
+        # get user input
+        selected_fragment_types = input&.[]('expected_fragment_types')&.split(',')
+        selected_fragment_types&.each do |fragment_type_name|
+          # get schema type for selected object
+          schema_type = possible_types.find do |type|
+            type['name'] == fragment_type_name
+          end
+          # skip if type name is not in list of possible types
+          unless fragment_type_name.present?
+            report_problem&.call(
+              "Object '#{fragment_type_name}' not found in list of possible types"
+            )
+            next
+          end
+          # create fragment field
+          fragment_field = {
+            type: :object,
+            optional: true
+          }
+          call(
+            'apply_field_name_and_label',
+            fragment_field,
+            'fragment',
+            fragment_type_name
           )
-          next
+          fragment_field[:properties] = call(
+            'create_input_fields_for_schema_type',
+            connection,
+            report_problem,
+            schema_type,
+            input[fragment_field[:name]]
+          )
+          # skip if empty
+          next if fragment_field[:properties].empty?
+
+          # add to list of fields
+          input_fields << fragment_field
         end
-
-        # create fragment field
-        fragment_field = {
-          type: :object,
-          optional: true
-        }
-        call(
-          'apply_field_name_and_label',
-          fragment_field,
-          'fragment',
-          fragment_type_name
-        )
-        fragment_field[:properties] = call(
-          'create_input_fields_for_schema_type',
-          connection,
-          report_problem,
-          schema_type,
-          input[fragment_field[:name]]
-        )
-
-        # skip if empty
-        next if fragment_field[:properties].empty?
-
-        # add to list of fields
-        input_fields << fragment_field
       end
-
       input_fields
     end,
 
@@ -2587,7 +2584,7 @@
           {
             ngIf: 'input.webhook_policy == "HS256" || input.webhook_policy == "HS384" || ' \
                   'input.webhook_policy == "HS512"',
-            name: 'webhook_secret_hs',
+            name: 'webhook_secret_hmac',
             label: 'HMAC secret',
             control_type: 'password',
             hint: 'The webhook policy HMAC secret.'
@@ -2597,7 +2594,7 @@
                   'input.webhook_policy == "RS512" || input.webhook_policy == "ES256" || ' \
                   'input.webhook_policy == "ES256" || input.webhook_policy == "ES384" || ' \
                   'input.webhook_policy == "ES512"',
-            name: 'webhook_secret',
+            name: 'webhook_public_key',
             label: 'Public PEM key',
             control_type: 'text-area',
             hint: 'The webhook policy public key.'
@@ -2628,42 +2625,40 @@
         connection,
         webhook_subscribe_output|
 
-        data = if input['webhook_policy'].blank?
-                 payload
-               else
-                 jwt = payload['jwt']
-                 case input['webhook_policy']
+        jwt = payload&.[]('jwt')
+        if jwt.present?
+          data = case input['webhook_policy']
                  when /^HS/
-                   workato.jwt_decode(jwt, input['webhook_secret_hs'], input['webhook_policy'])['payload']['data']
+                   workato.jwt_decode(jwt, input['webhook_secret_hmac'], input['webhook_policy'])['payload']['data']
                  when /^RS/
-                   workato.jwt_decode(jwt, input['webhook_secret'], input['webhook_policy'])['payload']['data']
+                   workato.jwt_decode(jwt, input['webhook_public_key'], input['webhook_policy'])['payload']['data']
                  when /^ES/
-                   workato.jwt_decode(jwt, input['webhook_secret'], input['webhook_policy'])['payload']['data']
+                   workato.jwt_decode(jwt, input['webhook_public_key'], input['webhook_policy'])['payload']['data']
                  end
-               end
 
-        webhook_identifiers = input['webhook_identifier']
-        webhook_identifiers = [webhook_identifiers] unless webhook_identifiers.is_a?(Array)
+          webhook_identifiers = input['webhook_identifier']
+          webhook_identifiers = Array.wrap(webhook_identifiers)
 
-        if webhook_identifiers.include?(data['webhook_nodeID']) &&
-           (data['event'] == input['event_selection'] || data['event'] == 'webhook.verify')
-          {
-            webhook_id: data['webhook_id'],
-            webhook_nodeID: data['webhook_nodeID'],
-            account_id: data['account_id'],
-            account: data['account'],
-            custom_url: data['custom_url'],
-            name: data['name'],
-            event: data['event'],
-            object_id: data['object_id'],
-            object_nodeID: data['object_nodeID'],
-            person_id: data['person_id'],
-            person_nodeID: data['person_nodeID'],
-            person_name: data['person_name'],
-            instance_name: data['instance_name'],
-            data: data['payload'],
-            payload: data['payload']
-          }
+          if webhook_identifiers.include?(data['webhook_nodeID']) &&
+             (data['event'] == input['event_selection'] || data['event'] == 'webhook.verify')
+            {
+              webhook_id: data['webhook_id'],
+              webhook_nodeID: data['webhook_nodeID'],
+              account_id: data['account_id'],
+              account: data['account'],
+              custom_url: data['custom_url'],
+              name: data['name'],
+              event: data['event'],
+              object_id: data['object_id'],
+              object_nodeID: data['object_nodeID'],
+              person_id: data['person_id'],
+              person_nodeID: data['person_nodeID'],
+              person_name: data['person_name'],
+              instance_name: data['instance_name'],
+              data: data['payload'],
+              payload: data['payload']
+            }
+          end
         end
       end,
 
