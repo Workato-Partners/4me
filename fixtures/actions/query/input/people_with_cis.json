@@ -1,0 +1,25 @@
+{
+  "account": "wdc",
+  "object": "people{}",
+  "primitive_fields": "",
+  "argument_first": "10",
+  "argument_view": "all",
+  "argument_order": [
+    {
+      "direction": "asc",
+      "field": "name"
+    }
+  ],
+  "nested_fields": "nodes",
+  "field_nodes": {
+    "primitive_fields": "id,jobTitle,name,location,primaryEmail,source,sourceID",
+    "nested_fields": "configurationItems",
+    "field_configurationItems": {
+      "argument_first": "10",
+      "nested_fields": "nodes",
+      "field_nodes": {
+        "primitive_fields": "id,label,name,serialNr,source,sourceID,status,systemID"
+      }
+    }
+  }
+}
