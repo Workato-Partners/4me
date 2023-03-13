@@ -1,0 +1,7 @@
+{
+	"event_selection": "automation_rule",
+	"payload_output": "[{\"control_type\":\"text\",\"label\":\"Callback\",\"type\":\"string\",\"name\":\"callback\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\"},{\"control_type\":\"text\",\"label\":\"Mail\",\"type\":\"string\",\"name\":\"Mail\"}],\"label\":\"Person\",\"type\":\"object\",\"name\":\"Person\"}]",
+	"webhook_identifier": "NG1lMjQuMjIxMjExMDAxMzIzQDRtZS1kZW1vLmNvbS9XZWJob29rLzM",
+	"webhook_policy": "RS256",
+	"webhook_public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvor9icVclFWajces6dOc\ngnOON4poPL0GG5anXVhRLTfks9bO9Kf02RQKPNdMkt0NMs0P+3Jop571fS3DF/Ly\nb+KW+ALvMVsNGwrDsQOW8h1Xge3+1HKDWQvJlPhNtLrZbY+3q0xbVhzBdBx62kxg\nxmzGJrsZ4oiNXp2HACvTQPHLlExKgKcNPhWvTRYfe3+oZ9ywheTa3GVQr8+nDE7R\nVjDN1+43LWDJYuQGR0O8DwGcqsHLL7b1i2VjEAUhNgSSJfhFX3jIdIbb7rPM45aG\nzxYPZOoQJbzfBsesUuaBoJqTHOJv8g2/nMPu5OPVoZnx78ZuGFV+RvyjGRIkW4US\nOwIDAQAB\n-----END PUBLIC KEY-----"
+}

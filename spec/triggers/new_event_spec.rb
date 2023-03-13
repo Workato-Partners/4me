@@ -12,6 +12,33 @@ RSpec.describe 'triggers/new_event', :vcr do
   # Or add more fine grained tests for each trigger definition block
   let(:trigger) { connector.triggers.new_event }
 
+  describe 'webhook notification - using SHA-256' do
+    subject(:output) { trigger.webhook_notification(input, payload) }
+    let(:input) { JSON.parse(File.read('fixtures/triggers/input/webhook_sha256.json')) }
+    let(:payload) { JSON.parse(File.read('fixtures/triggers/payload/webhook_sha256.json')) }
+
+    it 'is present' do
+      expect(output).to be_present
+    end
+
+    it 'contains event, data and payload' do
+      expect(output).to include(:event)
+      expect(output).to include(:data)
+      expect(output).to include(:payload)
+    end
+
+    it 'event equals webhook.verify' do
+      expect(output[:event]).to eq('webhook.verify')
+    end
+
+    it 'payload and data start with https://' do
+      expect(output[:data]).to include(:callback)
+      expect(output[:data][:callback]).to start_with 'https://'
+      expect(output[:payload]).to include(:callback)
+      expect(output[:payload][:callback]).to start_with 'https://'
+    end
+  end
+
   describe 'dedup' do
     subject(:output) { trigger.dedup(record) }
     let(:record) { { 'account_id' => 'wdc', 'event' => 'automation_rule', 'object_id' => 'abc' } }
