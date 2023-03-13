@@ -252,6 +252,7 @@
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
+      display_priority: 50,
       description: lambda do |input, picklist_label|
         name = input['object']
         name = name[0..-3] if name&.ends_with?('{}')
@@ -279,6 +280,7 @@
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
+      display_priority: 40,
       description: lambda do |input, picklist_label|
         name = input['object']
         name = name[0..-3] if name&.ends_with?('{}')
@@ -312,6 +314,7 @@
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
+      display_priority: 30,
       description: lambda do |input, picklist_label|
         operation_name = input['operation_name']
         if operation_name.blank?
@@ -337,13 +340,14 @@
 
     confirm_webhook: {
       title: 'Confirm webhook',
-      description: 'Confirm a 4me webhook verification request',
+      subtitle: 'Confirm a 4me webhook verification request.',
       help: {
         body: 'Confirm the 4me webhook verification request.',
         learn_more_url: 'https://developer.4me.com/v1/webhooks/#verification',
         learn_more_text: 'Learn more'
       },
-
+      display_priority: 10,
+      description: 'Confirm a 4me webhook verification request.',
       input_fields: lambda do |object_definitions|
         object_definitions['confirm_webhook_input']
       end,
@@ -355,12 +359,15 @@
 
     upload_attachment: {
       title: 'Upload attachment',
-      description: 'Upload a file',
+      subtitle: 'Upload a file which can be referenced later as an attachment or embedded' \
+                ' image in 4me.',
       help: {
-        body: 'Upload a file which can be referenced later as an attachment or embedded image,'\
+        body: 'Upload a file which can be referenced later as an attachment or embedded image,' \
               ' e.g. note attachments, in 4me.'
       },
-
+      display_priority: 20,
+      description: 'Upload a file which can be referenced later as an attachment or embedded' \
+                   ' image in 4me.',
       input_fields: lambda do |object_definitions|
         object_definitions['file_upload_input']
       end,
