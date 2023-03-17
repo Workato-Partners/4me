@@ -240,7 +240,10 @@
   end,
 
   webhook_keys: lambda do |params, headers, payload|
-    'default_route'
+    jwt = payload&.[]('jwt')
+    if jwt.present?
+      jwt.split('.')[1].decode_urlsafe_base64.as_utf8.match(/"webhook_nodeID":"([^"]*)"/)[1]
+    end
   end,
 
   actions: {
@@ -335,25 +338,6 @@
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['custom_operation_output']
-      end
-    },
-
-    confirm_webhook: {
-      title: 'Confirm webhook',
-      subtitle: 'Confirm a 4me webhook verification request.',
-      help: {
-        body: 'Confirm the 4me webhook verification request.',
-        learn_more_url: 'https://developer.4me.com/v1/webhooks/#verification',
-        learn_more_text: 'Learn more'
-      },
-      display_priority: 10,
-      description: 'Confirm a 4me webhook verification request.',
-      input_fields: lambda do |object_definitions|
-        object_definitions['confirm_webhook_input']
-      end,
-
-      execute: lambda do |connection, input|
-        post(input['webhook_verify'])
       end
     },
 
@@ -578,19 +562,6 @@
         else
           []
         end
-      end
-    },
-
-    confirm_webhook_input: {
-      fields: lambda do |object_definitions|
-        [
-          {
-            name: 'webhook_verify',
-            label: 'Webhook verification URL',
-            hint: 'The 4me webhook callback verification URL',
-            optional: false
-          }
-        ]
       end
     },
 
@@ -2577,6 +2548,7 @@
           {
             name: 'webhook_identifier',
             label: 'Webhook identifier',
+            control_type: 'plain-text',
             optional: false,
             hint: 'The webhook GraphQL identifier. An array of GraphQL identifiers can be set via "Formula" mode.'
           },
@@ -2619,7 +2591,7 @@
         ],
 
       webhook_key: lambda do |connection, input|
-        'default_route'
+        input['webhook_identifier']
       end,
 
       webhook_notification: lambda do |
@@ -2643,10 +2615,7 @@
                    workato.jwt_decode(jwt, input['webhook_public_key'], input['webhook_policy'])['payload']['data']
                  end
 
-          webhook_identifiers = input['webhook_identifier']
-          webhook_identifiers = Array.wrap(webhook_identifiers)
-
-          if webhook_identifiers.include?(data['webhook_nodeID']) &&
+          if data['webhook_nodeID'] == input['webhook_identifier'] &&
              (data['event'] == input['event_selection'] || data['event'] == 'webhook.verify')
             {
               webhook_id: data['webhook_id'],
