@@ -61,123 +61,104 @@
         pick_list: [
           ['Personal Access Token', 'bearer'],
           ['OAuth2 (Client Credentials Grant)', 'oauth2_client_credentials']
-        ],
-        extends_schema: true
+        ]
+      },
+      {
+        ngIf: 'input.auth_method == "bearer"',
+        name: 'bearer_token',
+        label: 'Personal Access Token',
+        hint: 'The 4me bearer token',
+        control_type: :password,
+        optional: false
+      },
+      {
+        ngIf: 'input.auth_method == "oauth2_client_credentials"',
+        name: 'client_id',
+        label: 'Client ID',
+        optional: false,
+        hint: 'The 4me OAuth 2.0 client ID'
+      },
+      {
+        ngIf: 'input.auth_method == "oauth2_client_credentials"',
+        name: 'client_secret',
+        label: 'Client secret',
+        optional: false,
+        control_type: :password,
+        hint: 'The 4me OAuth 2.0 client secret'
       }
     ],
 
     authorization: {
-      type: 'multi',
+      type: 'custom_auth',
 
-      selected: lambda do |connection|
-        connection['auth_method']
+      acquire: lambda do |connection|
+        instance = connection['instance']
+        region = connection['region']
+        custom_domain_name = connection['custom_domain_name']
+
+        token_url =
+          case instance
+          when 'production'
+            case region
+            when 'au'
+              'https://oauth.au.4me.com/token'
+            when 'uk'
+              'https://oauth.uk.4me.com/token'
+            when 'us'
+              'https://oauth.us.4me.com/token'
+            when 'ch'
+              'https://oauth.ch.4me.com/token'
+            else
+              'https://oauth.4me.com/token'
+            end
+          when 'quality_assurance'
+            case region
+            when 'au'
+              'https://oauth.au.4me.qa/token'
+            when 'uk'
+              'https://oauth.uk.4me.qa/token'
+            when 'us'
+              'https://oauth.us.4me.qa/token'
+            when 'ch'
+              'https://oauth.ch.4me.qa/token'
+            else
+              'https://oauth.4me.qa/token'
+            end
+          when 'demo'
+            'https://oauth.4me-demo.com/token'
+          else
+            "https://oauth.#{custom_domain_name}/token"
+          end
+
+        request = post(token_url)
+        request.headers('x-4me-Account': connection['account'])
+        payload = {
+          grant_type: 'client_credentials',
+          client_id: connection['client_id'],
+          client_secret: connection['client_secret']
+        }
+        request = request.payload(payload)
+        response = request.request_format_www_form_urlencoded
+
+        {
+          access_token: response['access_token']
+        }
       end,
 
-      options: {
-        bearer: {
-          type: 'custom_auth',
+      refresh_on: [401, 403],
 
-          fields: [
-            {
-              name: 'bearer_token',
-              label: 'Personal Access Token',
-              optional: false,
-              control_type: :password,
-              hint: 'The 4me bearer token'
-            }
-          ],
-
-          apply: lambda do |connection|
-            if current_url.include?('https://graphql.')
-              bearer_token = connection['bearer_token']
-              headers(Authorization: "Bearer #{bearer_token}") unless bearer_token.blank?
-            end
+      apply: lambda do |connection|
+        if current_url.include?('https://graphql.')
+          case connection['auth_method']
+          when 'bearer'
+            bearer_token = connection['bearer_token']
+            headers(Authorization: "Bearer #{bearer_token}") unless bearer_token.blank?
+          when 'oauth2_client_credentials'
+            access_token = connection['access_token']
+            headers(Authorization: "Bearer #{access_token}") unless access_token.blank?
           end
-        },
-
-        oauth2_client_credentials: {
-          type: 'custom_auth',
-
-          fields: [
-            {
-              name: 'client_id',
-              label: 'Client ID',
-              optional: false,
-              hint: 'The 4me OAuth 2.0 client ID'
-            },
-            {
-              name: 'client_secret',
-              label: 'Client secret',
-              optional: false,
-              control_type: :password,
-              hint: 'The 4me OAuth 2.0 client secret'
-            }
-          ],
-
-          acquire: lambda do |connection|
-            instance = connection['instance']
-            region = connection['region']
-            custom_domain_name = connection['custom_domain_name']
-
-            token_url =
-              case instance
-              when 'production'
-                case region
-                when 'au'
-                  'https://oauth.au.4me.com/token'
-                when 'uk'
-                  'https://oauth.uk.4me.com/token'
-                when 'us'
-                  'https://oauth.us.4me.com/token'
-                when 'ch'
-                  'https://oauth.ch.4me.com/token'
-                else
-                  'https://oauth.4me.com/token'
-                end
-              when 'quality_assurance'
-                case region
-                when 'au'
-                  'https://oauth.au.4me.qa/token'
-                when 'uk'
-                  'https://oauth.uk.4me.qa/token'
-                when 'us'
-                  'https://oauth.us.4me.qa/token'
-                when 'ch'
-                  'https://oauth.ch.4me.qa/token'
-                else
-                  'https://oauth.4me.qa/token'
-                end
-              when 'demo'
-                'https://oauth.4me-demo.com/token'
-              else
-                "https://oauth.#{custom_domain_name}/token"
-              end
-
-            request = post(token_url)
-            request.headers('x-4me-Account': connection['account'])
-            payload = {
-              grant_type: 'client_credentials',
-              client_id: connection['client_id'],
-              client_secret: connection['client_secret']
-            }
-            request = request.payload(payload)
-            response = request.request_format_www_form_urlencoded
-
-            {
-              access_token: response['access_token']
-            }
-          end,
-
-          apply: lambda do |connection|
-            if current_url.include?('https://graphql.')
-              access_token = connection['access_token']
-              headers(Authorization: "Bearer #{access_token}") unless access_token.blank?
-            end
-          end,
-
-          refresh_on: [401, 403]
-        }
-      }
+        end
+      end
     },
 
     base_uri: lambda do |connection|
