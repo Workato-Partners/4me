@@ -1,0 +1,6 @@
+{
+  "account": "wdc",
+  "query": "query Query1 ($id: ID!) { node(id: $id) { ... on Person { id name primaryEmail } } }\nquery Query2 ($id: ID!) { node(id: $id) { ... on Person { id name primaryEmail } } }",
+  "operation_name": "Query1",
+  "variable_id": "d29ya2F0b2Nvbm5lY3Rvci4yMzAxMzEwMjUxMjNANG1lLWRlbW8uY29tL1BlcnNvbi82MDU"
+}
