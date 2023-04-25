@@ -2310,8 +2310,7 @@
       value = field['default'] if value.blank? && !optional
 
       if value.present?
-        if %w[ISO8601Timestamp ISO8601DateTime ISO8601Date].include?(type) ||
-           (type == 'string' && control_type != 'select')
+        if %w[date_time date].include?(type) || (type == 'string' && control_type != 'select')
           value = "\"#{value}\""
         elsif type == 'array'
           value = Array.wrap(value)
