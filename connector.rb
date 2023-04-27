@@ -2307,14 +2307,16 @@
       end
 
       # treat blank string for optional fields as nil
-      value = field['default'] if value.blank? && !optional
+      value = nil if value.is_a?(String) && optional && value == ''
 
-      if value.present?
+      unless value.nil? && optional
+        value = field['default'] if value.nil?
+
         if %w[date_time date].include?(type) || (type == 'string' && control_type != 'select')
           value = "\"#{value}\""
         elsif type == 'array'
           value = Array.wrap(value)
-          value = value.map do |v|
+          value = value&.map do |v|
             f = field.merge(
               { 'type' => field['of'] }
             )
