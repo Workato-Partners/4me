@@ -2316,7 +2316,7 @@
           value = "\"#{value}\""
         elsif type == 'array'
           value = Array.wrap(value)
-          value = value&.map do |v|
+          value = value.map do |v|
             f = field.merge(
               { 'type' => field['of'] }
             )
