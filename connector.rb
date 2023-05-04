@@ -2313,7 +2313,7 @@
         value = field['default'] if value.nil?
 
         if %w[date_time date].include?(type) || (type == 'string' && control_type != 'select')
-          value = "\"#{value}\""
+          value = value.to_json
         elsif type == 'array'
           value = Array.wrap(value)
           value = value.map do |v|
