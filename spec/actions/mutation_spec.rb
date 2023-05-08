@@ -39,7 +39,6 @@ RSpec.describe 'actions/mutation', :vcr do # rubocop:disable Metrics/BlockLength
 
     it 'contains errors' do
       expect(output).to include('errors')
-      puts output
       expect(output[:errors].count).to be_positive
     end
   end

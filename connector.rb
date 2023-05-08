@@ -2307,7 +2307,7 @@
       end
 
       # treat blank string for optional fields as nil
-      value = nil if value.is_a?(String) && optional && value == ''
+      value = nil if value == '' && optional
 
       unless value.nil? && optional
         value = field['default'] if value.nil?
