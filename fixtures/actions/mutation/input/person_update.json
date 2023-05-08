@@ -2,13 +2,15 @@
   "account": "wdc",
   "object": "personUpdate{}",
   "argument_input": {
-    "id": "d29ya2F0b2Nvbm5lY3Rvci4yMzAxMzEwMjUxMjNANG1lLWRlbW8uY29tL1BlcnNvbi83",
-    "information": "Update via 4me Connector",
-    "clientMutationId": "rspec"
+    "id": "d29ya2F0b2Nvbm5lY3Rvci4yMzAxMzEwMjUxMjNANG1lLWRlbW8uY29tL1BlcnNvbi83Mw",
+		"autoTranslation": "false",
+    "information": "**1\\. \" Bold**\nNew line",
+    "clientMutationId": "rspec",
+    "timeFormat24h": "true"
   },
   "primitive_fields": "clientMutationId",
   "nested_fields": "person,errors",
   "field_person": {
-    "primitive_fields": "id"
+    "primitive_fields": "id,autoTranslation,name,timeFormat24h"
   }
 }

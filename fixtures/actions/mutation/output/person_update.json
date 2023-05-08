@@ -1,7 +1,10 @@
 {
   "clientMutationId":"rspec",
   "person": {
-    "id":"d29ya2F0b2Nvbm5lY3Rvci4yMzAxMzEwMjUxMjNANG1lLWRlbW8uY29tL1BlcnNvbi83"
+    "id":"d29ya2F0b2Nvbm5lY3Rvci4yMzAxMzEwMjUxMjNANG1lLWRlbW8uY29tL1BlcnNvbi83Mw",
+    "autoTranslation": false,
+    "name": "Ashok Kumar",
+    "timeFormat24h": true
   },
   "errors":null
 }

@@ -2307,12 +2307,13 @@
       end
 
       # treat blank string for optional fields as nil
-      value = field['default'] if value.blank? && !optional
+      value = nil if value == '' && optional
 
-      if value.present?
-        if %w[ISO8601Timestamp ISO8601DateTime ISO8601Date].include?(type) ||
-           (type == 'string' && control_type != 'select')
-          value = "\"#{value}\""
+      unless value.nil? && optional
+        value = field['default'] if value.nil?
+
+        if %w[date_time date].include?(type) || (type == 'string' && control_type != 'select')
+          value = value.to_json
         elsif type == 'array'
           value = Array.wrap(value)
           value = value.map do |v|
