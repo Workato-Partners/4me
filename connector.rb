@@ -2513,7 +2513,7 @@
           you will need to register the webhook below in 4me under "settings" => "webhooks". <br><br>
           <b>Webhook endpoint URL</b>
           <b class="tips__highlight">#{webhook_base_url}</b>
-          More information on how to use 4me automation rules and webhooks can be found on the <a href="https://developer.4me.com//v1/workato_connector/" target="_blank">4me developer pages</a>.
+          More information on how to use 4me automation rules and webhooks can be found on the <a href="https://developer.4me.com/v1/workato_connector/" target="_blank">4me developer pages</a>.
         HTML
       end,
 
