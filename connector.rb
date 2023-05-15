@@ -2532,7 +2532,7 @@
             label: 'Webhook identifier',
             control_type: 'plain-text',
             optional: false,
-            hint: 'The webhook GraphQL identifier. An array of GraphQL identifiers can be set via "Formula" mode.'
+            hint: 'The webhook GraphQL identifier.'
           },
           {
             name: 'webhook_policy',
