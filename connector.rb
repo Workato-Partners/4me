@@ -529,10 +529,8 @@
           nil,
           input['query']
         )
-        documents = parsed_query&.[](:documents)
-        if documents.present?
-          operation = documents.find { |doc| doc[:operation_name] == input['operation_name'] }
-        end
+        docs = parsed_query&.[](:documents)
+        operation = docs.find { |doc| doc[:operation_name] == input['operation_name'] } || docs.first if docs.present?
         if operation.present?
           call(
             'create_custom_operation_output_fields',
