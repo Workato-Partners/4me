@@ -232,7 +232,9 @@
       title: 'Query records',
       subtitle: 'Retrieve one or more records, e.g. people, configuration items, requets and workflows, in 4me.',
       help: {
-        body: 'Use this action to get a single record or search all records that matches your search criteria.',
+        body: 'Use this action to get a single record or search all records that matches your search criteria.<br>'\
+              'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
+              '4me automation rules or in the 4me REST API.',
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
@@ -260,7 +262,9 @@
       title: 'Mutate records',
       subtitle: 'Create, update or delete a record, e.g. people, configuration items, requets and workflows, in 4me.',
       help: {
-        body: 'Use this action to create, delete or update a record.',
+        body: 'Use this action to create, delete or update a record.<br>'\
+              'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
+              '4me automation rules or in the 4me REST API.',
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
@@ -294,7 +298,9 @@
       title: 'Custom action',
       subtitle: 'Provide and run a custom GraphQL operation, e.g. create a person or query people, in 4me.',
       help: {
-        body: 'Use this action to run any 4me GraphQL operation.',
+        body: 'Use this action to run any 4me GraphQL operation.<br>'\
+              'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
+              '4me automation rules or in the 4me REST API.',
         learn_more_url: 'https://developer.4me.com/graphql/',
         learn_more_text: 'Learn more'
       },
