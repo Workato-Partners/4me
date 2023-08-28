@@ -18,14 +18,14 @@ RSpec.describe 'actions/mutation', :vcr do # rubocop:disable Metrics/BlockLength
       expect(output).to be_present
     end
 
-    it 'contains clientMutationId, person and errors' do
+    it 'gives expected output' do
       expect(output).to include('clientMutationId')
       expect(output).to include('person')
       expect(output).to include('errors')
-    end
-
-    it 'gives expected output' do
-      expect(output).to eq(expected_output)
+      expect(output).to include('rate_limit_headers')
+      expect(output['rate_limit_headers']).to include('rate_limit')
+      expect(output['clientMutationId']).to eq('rspec')
+      expect(output['person']['timeFormat24h']).to eq(true)
     end
   end
 

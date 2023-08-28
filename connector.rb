@@ -538,12 +538,14 @@
         docs = parsed_query&.[](:documents)
         operation = docs.find { |doc| doc[:operation_name] == input['operation_name'] } || docs.first if docs.present?
         if operation.present?
-          call(
+          output_fiels = call(
             'create_custom_operation_output_fields',
             connection,
             nil,
             operation
           )
+          output_fiels.insert(0, call('build_output_rate_limit_fields'))
+          output_fiels
         else
           []
         end
@@ -1207,7 +1209,13 @@
       # for some reason, 301 was not handles without 'follow_redirection' (AG)
       request.follow_redirection.after_response do |code, body, res_headers|
         handle_errors.call(body)
-        body['data']
+        result = body['data']
+        result['rate_limit_headers'] = {
+          'rate_limit' => res_headers['x_ratelimit_limit'],
+          'remaining' => res_headers['x_ratelimit_remaining'],
+          'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_ratelimit_reset'].to_i.seconds)
+        }
+        result
       end
     end,
 
@@ -1798,8 +1806,38 @@
           )
           schema << output_field
         end
+        schema.insert(0, call('build_output_rate_limit_fields'))
       end
       schema
+    end,
+
+    build_output_rate_limit_fields: lambda do
+      {
+        name: 'rate_limit_headers',
+        label: 'Rate limit',
+        hint: 'Select objects to get additional information about',
+        type: 'object',
+        properties: [
+          {
+            name: 'rate_limit',
+            label: 'Rate limit',
+            type: 'integer',
+            hint: 'The maximum number of requests permitted to make in the current rate limit window.'
+          },
+          {
+            name: 'remaining',
+            label: 'Remaining',
+            type: 'integer',
+            hint: 'The number of requests remaining in the current rate limit window.'
+          },
+          {
+            name: 'reset',
+            label: 'Reset',
+            type: 'timestamp',
+            hint: 'The time at which the current rate limit window resets.'
+          }
+        ]
+      }
     end,
 
     # Check if type has required fields
@@ -2495,9 +2533,12 @@
         )
         if is_object
           field_name = field_name[0..-3]
-          result = result[field_name]
+          response = result[field_name]
+          response['rate_limit_headers'] = result['rate_limit_headers']
+          response
+        else
+          result
         end
-        result
       end
     end
   },
