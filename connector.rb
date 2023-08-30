@@ -2658,7 +2658,7 @@
               person_nodeID: data['person_nodeID'],
               person_name: data['person_name'],
               instance_name: data['instance_name'],
-              data: data['payload'],
+              data: data['payload'].map { |key, value| { 'key' => key, 'value' => value } },
               payload: data['payload']
             }
           end
