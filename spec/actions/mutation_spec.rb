@@ -23,7 +23,9 @@ RSpec.describe 'actions/mutation', :vcr do # rubocop:disable Metrics/BlockLength
       expect(output).to include('person')
       expect(output).to include('errors')
       expect(output).to include('rate_limit_headers')
-      expect(output['rate_limit_headers']).to include('rate_limit')
+      expect(output['rate_limit_headers']).to include('limit')
+      expect(output['rate_limit_headers']).to include('remaining')
+      expect(output['rate_limit_headers']).to include('reset')
       expect(output['clientMutationId']).to eq('rspec')
       expect(output['person']['timeFormat24h']).to eq(true)
     end

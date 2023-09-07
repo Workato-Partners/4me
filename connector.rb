@@ -538,14 +538,14 @@
         docs = parsed_query&.[](:documents)
         operation = docs.find { |doc| doc[:operation_name] == input['operation_name'] } || docs.first if docs.present?
         if operation.present?
-          output_fiels = call(
+          output_fields = call(
             'create_custom_operation_output_fields',
             connection,
             nil,
             operation
           )
-          output_fiels.insert(0, call('build_output_rate_limit_fields'))
-          output_fiels
+          output_fields.insert(0, call('build_output_rate_limit_fields'))
+          output_fields
         else
           []
         end
@@ -1211,7 +1211,7 @@
         handle_errors.call(body)
         result = body['data']
         result['rate_limit_headers'] = {
-          'rate_limit' => res_headers['x_ratelimit_limit'],
+          'limit' => res_headers['x_ratelimit_limit'],
           'remaining' => res_headers['x_ratelimit_remaining'],
           'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_ratelimit_reset'].to_i.seconds)
         }
@@ -1819,8 +1819,8 @@
         type: 'object',
         properties: [
           {
-            name: 'rate_limit',
-            label: 'Rate limit',
+            name: 'limit',
+            label: 'Limit',
             type: 'integer',
             hint: 'The maximum number of requests permitted to make in the current rate limit window.'
           },
