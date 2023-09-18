@@ -1209,13 +1209,15 @@
       # for some reason, 301 was not handles without 'follow_redirection' (AG)
       request.follow_redirection.after_response do |code, body, res_headers|
         handle_errors.call(body)
-        result = body['data']
-        result['rate_limit_headers'] = {
-          'limit' => res_headers['x_ratelimit_limit'],
-          'remaining' => res_headers['x_ratelimit_remaining'],
-          'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_ratelimit_reset'].to_i.seconds)
-        }
-        result
+        if body.has_key?('data')
+          result = body['data']
+          result['rate_limit_headers'] = {
+            'limit' => res_headers['x_ratelimit_limit'],
+            'remaining' => res_headers['x_ratelimit_remaining'],
+            'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_ratelimit_reset'].to_i.seconds)
+          }
+          result
+        end
       end
     end,
 
