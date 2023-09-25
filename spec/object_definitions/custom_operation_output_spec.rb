@@ -18,8 +18,9 @@ RSpec.describe 'object_definition/custom_operation_output', :vcr do
     end
 
     it 'includes me and ID label' do
-      expect(schema_fields.first).to include('label' => 'Me')
-      expect(schema_fields.first[:properties].first).to include('label' => 'ID', 'name' => 'id')
+      expect(schema_fields.first).to include('label' => 'Rate limit')
+      expect(schema_fields.last).to include('label' => 'Me')
+      expect(schema_fields.last[:properties].first).to include('label' => 'ID', 'name' => 'id')
     end
   end
 end

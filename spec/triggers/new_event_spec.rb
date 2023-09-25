@@ -32,8 +32,7 @@ RSpec.describe 'triggers/new_event', :vcr do
     end
 
     it 'payload and data start with https://' do
-      expect(output[:data]).to include(:callback)
-      expect(output[:data][:callback]).to start_with 'https://'
+      expect(output[:data]).to eq([{ 'key' => 'callback', 'value' => 'https://wdc.4me-demo.com/webhooks/3/verify?code=To7jPhA3q80bb8HpsVtxQ2aT&expires_at=1678750777&instance=4me24' }])
       expect(output[:payload]).to include(:callback)
       expect(output[:payload][:callback]).to start_with 'https://'
     end

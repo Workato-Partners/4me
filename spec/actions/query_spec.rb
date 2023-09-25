@@ -20,6 +20,13 @@ RSpec.describe 'actions/query', :vcr do # rubocop:disable Metrics/BlockLength
       expect(output).to include('totalCount')
     end
 
+    it 'contains rate limit information' do
+      expect(output).to include('rate_limit_headers')
+      expect(output['rate_limit_headers']).to include('limit')
+      expect(output['rate_limit_headers']).to include('remaining')
+      expect(output['rate_limit_headers']).to include('reset')
+    end
+
     it 'contains totalCount greater than 0' do
       expect(output[:totalCount]).to be_positive
     end
