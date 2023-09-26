@@ -53,7 +53,7 @@ RSpec.describe 'triggers/new_event', :vcr do
       expect(output).not_to include(:payload)
     end
 
-    it 'payload and data contains source, audit_line_id and audit_line_nodeID' do
+    it 'data contains source, audit_line_id and audit_line_nodeID' do
       expect(output[:data]).to eq({ 'audit_line_id' => 239_979_698, 'audit_line_nodeID' => 'NG1lLnFhL0F1ZGl0TGluZS8yMzk5Nzk2OTg', 'source' => '4me API' })
     end
   end
