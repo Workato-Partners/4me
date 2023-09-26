@@ -2646,23 +2646,44 @@
 
           if data['webhook_nodeID'] == input['webhook_identifier'] &&
              (data['event'] == input['event_selection'] || data['event'] == 'webhook.verify')
-            {
-              webhook_id: data['webhook_id'],
-              webhook_nodeID: data['webhook_nodeID'],
-              account_id: data['account_id'],
-              account: data['account'],
-              custom_url: data['custom_url'],
-              name: data['name'],
-              event: data['event'],
-              object_id: data['object_id'],
-              object_nodeID: data['object_nodeID'],
-              person_id: data['person_id'],
-              person_nodeID: data['person_nodeID'],
-              person_name: data['person_name'],
-              instance_name: data['instance_name'],
-              data: data['payload'].map { |key, value| { 'key' => key, 'value' => value } },
-              payload: data['payload']
-            }
+
+            case input['event_selection']
+            when 'automation_rule'
+              {
+                webhook_id: data['webhook_id'],
+                webhook_nodeID: data['webhook_nodeID'],
+                account_id: data['account_id'],
+                account: data['account'],
+                custom_url: data['custom_url'],
+                name: data['name'],
+                event: data['event'],
+                object_id: data['object_id'],
+                object_nodeID: data['object_nodeID'],
+                person_id: data['person_id'],
+                person_nodeID: data['person_nodeID'],
+                person_name: data['person_name'],
+                instance_name: data['instance_name'],
+                data: data['payload'].map { |key, value| { 'key' => key, 'value' => value } },
+                payload: data['payload']
+              }
+            else
+              {
+                webhook_id: data['webhook_id'],
+                webhook_nodeID: data['webhook_nodeID'],
+                account_id: data['account_id'],
+                account: data['account'],
+                custom_url: data['custom_url'],
+                name: data['name'],
+                event: data['event'],
+                object_id: data['object_id'],
+                object_nodeID: data['object_nodeID'],
+                person_id: data['person_id'],
+                person_nodeID: data['person_nodeID'],
+                person_name: data['person_name'],
+                instance_name: data['instance_name'],
+                data: data['payload']
+              }
+            end
           end
         end
       end,
