@@ -1,0 +1,6 @@
+{
+	"event_selection": "person.update",
+	"webhook_identifier": "NG1lLnFhL1dlYmhvb2svMzI2Nw",
+	"webhook_policy": "RS256",
+	"webhook_public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7buSPvA00PhpAaJsHOQz\n3Z3hYQiil0Agv8DyxR1ImAmIOdfGUio0V9UVFyZ/7ELmbdwOSdZUHviJ1U0geLK9\neFKhLYQ7FTv0Cg2v99npsLHXH7340ONn+zt9ArAExKZmvU3QVjNG6Y94Waom+pgK\naswU1plXvry9QWdMndob7wrZ5PCH+kbmdCr3Ucd0PokjamSS70X13OGJvgW3N6FH\nsxpWypDsu36t4IB1vAjaJL7vGPxaGkpLFdpEdf8AhnQEny1kG0M3/RO8EufJFCQE\niCZEHIOyejKccE10DTreoxKQ1/opFLMwWvs7QhcncLYBf0Lvwdv5z0dBNDryYnf+\nGwIDAQAB\n-----END PUBLIC KEY-----\n"
+}

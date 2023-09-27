@@ -12,10 +12,10 @@ RSpec.describe 'triggers/new_event', :vcr do
   # Or add more fine grained tests for each trigger definition block
   let(:trigger) { connector.triggers.new_event }
 
-  describe 'webhook notification - using SHA-256' do
+  describe 'automation rule webhook notification - using SHA-256' do
     subject(:output) { trigger.webhook_notification(input, payload) }
-    let(:input) { JSON.parse(File.read('fixtures/triggers/input/webhook_sha256.json')) }
-    let(:payload) { JSON.parse(File.read('fixtures/triggers/payload/webhook_sha256.json')) }
+    let(:input) { JSON.parse(File.read('fixtures/triggers/input/webhook_automation_rule_sha256.json')) }
+    let(:payload) { JSON.parse(File.read('fixtures/triggers/payload/webhook_automation_rule_sha256.json')) }
 
     it 'is present' do
       expect(output).to be_present
@@ -35,6 +35,26 @@ RSpec.describe 'triggers/new_event', :vcr do
       expect(output[:data]).to eq([{ 'key' => 'callback', 'value' => 'https://wdc.4me-demo.com/webhooks/3/verify?code=To7jPhA3q80bb8HpsVtxQ2aT&expires_at=1678750777&instance=4me24' }])
       expect(output[:payload]).to include(:callback)
       expect(output[:payload][:callback]).to start_with 'https://'
+    end
+  end
+
+  describe 'person update webhook notification - using SHA-256' do
+    subject(:output) { trigger.webhook_notification(input, payload) }
+    let(:input) { JSON.parse(File.read('fixtures/triggers/input/webhook_person_update_sha256.json')) }
+    let(:payload) { JSON.parse(File.read('fixtures/triggers/payload/webhook_person_update_sha256.json')) }
+
+    it 'is present' do
+      expect(output).to be_present
+    end
+
+    it 'contains event, data and no payload' do
+      expect(output).to include(:event)
+      expect(output).to include(:data)
+      expect(output).not_to include(:payload)
+    end
+
+    it 'data contains source, audit_line_id and audit_line_nodeID' do
+      expect(output[:data]).to eq({ 'audit_line_id' => 239_979_698, 'audit_line_nodeID' => 'NG1lLnFhL0F1ZGl0TGluZS8yMzk5Nzk2OTg', 'source' => '4me API' })
     end
   end
 
