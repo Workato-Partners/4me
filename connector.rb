@@ -545,6 +545,7 @@
             operation
           )
           output_fields.insert(0, call('build_output_rate_limit_fields'))
+          output_fields.insert(1, call('build_output_cost_limit_fields'))
           output_fields
         else
           []
@@ -1216,6 +1217,12 @@
             'remaining' => res_headers['x_ratelimit_remaining'],
             'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_ratelimit_reset'].to_i.seconds)
           }
+          result['cost_rate_limit_headers'] = {
+            'limit' => res_headers['x_costlimit_limit'],
+            'cost' => res_headers['x_costlimit_cost'],
+            'remaining' => res_headers['x_costlimit_remaining'],
+            'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_costlimit_reset'].to_i.seconds)
+          }
           result
         end
       end
@@ -1809,6 +1816,7 @@
           schema << output_field
         end
         schema.insert(0, call('build_output_rate_limit_fields'))
+        schema.insert(1, call('build_output_cost_limit_fields'))
       end
       schema
     end,
@@ -1837,6 +1845,41 @@
             label: 'Reset',
             type: 'timestamp',
             hint: 'The time at which the current rate limit window resets.'
+          }
+        ]
+      }
+    end,
+
+    build_output_cost_limit_fields: lambda do
+      {
+        name: 'cost_rate_limit_headers',
+        label: 'Cost limit',
+        hint: 'Select objects to get additional information about',
+        type: 'object',
+        properties: [
+          {
+            name: 'limit',
+            label: 'Limit',
+            type: 'integer',
+            hint: 'The maximum number of points the client is permitted to consume in a 60-minutes window.'
+          },
+          {
+            name: 'cost',
+            label: 'Cost',
+            type: 'integer',
+            hint: 'The point cost for the current call that counts against the query cost rate limit.'
+          },
+          {
+            name: 'remaining',
+            label: 'Remaining',
+            type: 'integer',
+            hint: 'The number of points remaining in the current query cost rate limit window.'
+          },
+          {
+            name: 'reset',
+            label: 'Reset',
+            type: 'timestamp',
+            hint: 'The time at which the current query cost rate limit window resets.'
           }
         ]
       }
@@ -2537,6 +2580,7 @@
           field_name = field_name[0..-3]
           response = result[field_name]
           response['rate_limit_headers'] = result['rate_limit_headers']
+          response['cost_rate_limit_headers'] = result['cost_rate_limit_headers']
           response
         else
           result
