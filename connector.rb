@@ -605,6 +605,37 @@
       end
     },
 
+    app_instance_app_offering: {
+      fields: lambda do |connection, config_fields, object_definitions|
+        [
+          { name: 'reference' },
+          { name: 'id', type: 'integer' },
+          { name: 'nodeID' }
+        ]
+      end
+    },
+
+    app_instance_application: {
+      fields: lambda do |connection, config_fields, object_definitions|
+        [
+          { name: 'nodeID' },
+          { name: 'client_id' },
+          { name: 'client_secret' }
+        ]
+      end
+    },
+
+    app_instance_policy: {
+      fields: lambda do |connection, config_fields, object_definitions|
+        [
+          { name: 'nodeID' },
+          { name: 'audience' },
+          { name: 'algorithm' },
+          { name: 'public_key' }
+        ]
+      end
+    },
+
     common_with_name: {
       fields: lambda do |connection, config_fields, object_definitions|
         [
@@ -750,6 +781,56 @@
               { name: 'time_spent', type: 'integer' },
               { name: 'updated_at', type: 'date_time' },
               { name: 'account', type: 'object', properties: object_definitions['account'] }
+            ] }
+          ]
+        when 'app_instance.secrets-update'
+          [
+            { name: 'webhook_id', type: 'integer' },
+            { name: 'webhook_nodeID' },
+            { name: 'account_id' },
+            { name: 'account' },
+            { name: 'custom_url' },
+            { name: 'name' },
+            { name: 'event' },
+            { name: 'object_id', type: 'integer' },
+            { name: 'object_nodeID' },
+            { name: 'person_id', type: 'integer' },
+            { name: 'person_nodeID' },
+            { name: 'person_name' },
+            { name: 'data', type: 'object', properties: [
+              { name: 'callback' },
+              { name: 'audit_line_id', type: 'integer' },
+              { name: 'audit_line_nodeID' },
+              { name: 'app_offering', type: 'object', properties: object_definitions['app_instance_app_offering'] },
+              { name: 'customer_account_id' },
+              { name: 'application', type: 'object', properties: object_definitions['app_instance_application'] },
+              { name: 'policy', type: 'object', properties: object_definitions['app_instance_policy'] }
+            ] }
+          ]
+        when /^app_instance\./
+          [
+            { name: 'webhook_id', type: 'integer' },
+            { name: 'webhook_nodeID' },
+            { name: 'account_id' },
+            { name: 'account' },
+            { name: 'custom_url' },
+            { name: 'name' },
+            { name: 'event' },
+            { name: 'object_id', type: 'integer' },
+            { name: 'object_nodeID' },
+            { name: 'person_id', type: 'integer' },
+            { name: 'person_nodeID' },
+            { name: 'person_name' },
+            { name: 'data', type: 'object', properties: [
+              { name: 'callback' },
+              { name: 'audit_line_id', type: 'integer' },
+              { name: 'audit_line_nodeID' },
+              { name: 'app_offering', type: 'object', properties: object_definitions['app_instance_app_offering'] },
+              { name: 'customer_account_id' },
+              { name: 'disabled', type: 'boolean' },
+              { name: 'enabled_by_customer', type: 'boolean' },
+              { name: 'suspended', type: 'boolean' },
+              { name: 'customer_representative', type: 'object', properties: object_definitions['common_with_name'] }
             ] }
           ]
         else
