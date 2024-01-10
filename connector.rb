@@ -15,12 +15,13 @@
         name: 'account',
         label: '4me Account',
         optional: false,
-        hint: 'The 4me account identifier'
+        hint: "You can find the 4me account identifier via 'Settings' => 'Account overview'"
       },
       {
         name: 'instance',
-        label: '4me Instance',
-        hint: 'The 4me instance',
+        label: '4me Environment',
+        hint: 'The environment of the 4me instance. ' \
+              '<a href="https://developer.4me.com/graphql/#service-url-1" target="_blank">Learn more</a>',
         optional: false,
         control_type: 'select',
         options: [
@@ -34,7 +35,8 @@
         ngIf: 'input.instance == "production" || input.instance == "quality_assurance"',
         name: 'region',
         label: '4me region',
-        hint: 'The 4me region',
+        hint: 'The region of the 4me instance.' \
+              '<a href="https://developer.4me.com/graphql/#service-url-1" target="_blank">Learn more</a>',
         optional: false,
         control_type: 'select',
         options: [
@@ -48,13 +50,14 @@
       {
         ngIf: 'input.instance == "custom_domain"',
         name: 'custom_domain_name',
-        label: 'Domain name',
-        hint: 'The 4me domain name',
+        label: 'The 4me domain name',
+        hint: 'The custom domain name of the 4me instance',
         optional: false,
         control_type: 'text'
       },
       {
         name: 'auth_method',
+        label: 'Authentication method',
         control_type: 'select',
         hint: 'The 4me authentication method',
         optional: false,
@@ -67,16 +70,18 @@
         ngIf: 'input.auth_method == "bearer"',
         name: 'bearer_token',
         label: 'Personal Access Token',
-        hint: 'The 4me bearer token',
         control_type: :password,
-        optional: false
+        optional: false,
+        hint: "You can create a Personal Access Token via 'My profile' => 'Personal Access Token'. " \
+              '<a href="https://developer.4me.com/v1/#personal-access-tokens" target="_blank">Learn more</a>'
       },
       {
         ngIf: 'input.auth_method == "oauth2_client_credentials"',
         name: 'client_id',
         label: 'Client ID',
         optional: false,
-        hint: 'The 4me OAuth 2.0 client ID'
+        hint: "You can create an OAuth 2.0 client ID and secret via 'Settings' => 'OAuth Applications'. " \
+              '<a href="https://developer.4me.com/v1/oauth/client_credentials_grant" target="_blank">Learn more</a>'
       },
       {
         ngIf: 'input.auth_method == "oauth2_client_credentials"',
@@ -84,7 +89,8 @@
         label: 'Client secret',
         optional: false,
         control_type: :password,
-        hint: 'The 4me OAuth 2.0 client secret'
+        hint: "You can create an OAuth 2.0 client ID and secret via 'Settings' => 'OAuth Applications'. " \
+              '<a href="https://developer.4me.com/v1/oauth/client_credentials_grant/" target="_blank">Learn more</a>'
       }
     ],
 
