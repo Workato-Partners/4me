@@ -47,13 +47,8 @@ RSpec.describe 'actions/mutation', :vcr do # rubocop:disable Metrics/BlockLength
     let(:input) { JSON.parse(File.read('fixtures/actions/mutation/input/request_create_with_error.json')) }
     subject(:output) { connector.actions.mutation(input) }
 
-    it 'contains a response' do
-      expect(output).to be_present
-    end
-
-    it 'contains errors' do
-      expect(output).to include('errors')
-      expect(output[:errors].count).to be_positive
+    it 'contains an error response' do
+      expect { output }.to raise_error(Workato::Connector::Sdk::RuntimeError)
     end
   end
 end

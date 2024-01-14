@@ -15,7 +15,7 @@
         name: 'account',
         label: '4me Account',
         optional: false,
-        hint: "You can find the 4me account identifier via 'Settings' => 'Account overview'"
+        hint: "You can find the 4me account identifier via 'Settings' => 'Account overview'."
       },
       {
         name: 'instance',
@@ -35,7 +35,7 @@
         ngIf: 'input.instance == "production" || input.instance == "quality_assurance"',
         name: 'region',
         label: '4me region',
-        hint: 'The region of the 4me instance.' \
+        hint: 'The region of the 4me instance. ' \
               '<a href="https://developer.4me.com/graphql/#service-url-1" target="_blank">Learn more</a>',
         optional: false,
         control_type: 'select',
@@ -50,7 +50,7 @@
       {
         ngIf: 'input.instance == "custom_domain"',
         name: 'custom_domain_name',
-        label: 'The 4me domain name',
+        label: 'The 4me domain name.',
         hint: 'The custom domain name of the 4me instance',
         optional: false,
         control_type: 'text'
@@ -59,7 +59,7 @@
         name: 'auth_method',
         label: 'Authentication method',
         control_type: 'select',
-        hint: 'The 4me authentication method',
+        hint: 'The 4me authentication method.',
         optional: false,
         pick_list: [
           ['Personal Access Token', 'bearer'],
@@ -236,7 +236,7 @@
   actions: {
     query: {
       title: 'Query records',
-      subtitle: 'Retrieve one or more records, e.g. people, configuration items, requets and workflows, in 4me.',
+      subtitle: 'Retrieve one or more records, e.g. people, configuration items, requests and workflows, in 4me.',
       help: {
         body: 'Use this action to get a single record or search all records that matches your search criteria.<br>'\
               'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
@@ -336,15 +336,15 @@
 
     upload_attachment: {
       title: 'Upload attachment',
-      subtitle: 'Upload a file which can be referenced later as an attachment or embedded' \
-                ' image in 4me.',
+      subtitle: 'Upload a file which can be referenced later as an attachment or embedded ' \
+                'image in 4me.',
       help: {
-        body: 'Upload a file which can be referenced later as an attachment or embedded image,' \
-              ' e.g. note attachments, in 4me.'
+        body: 'Upload a file which can be referenced later as an attachment or embedded image, ' \
+              'e.g. note attachments, in 4me.'
       },
       display_priority: 20,
-      description: 'Upload a file which can be referenced later as an attachment or embedded' \
-                   ' image in 4me.',
+      description: 'Upload a file which can be referenced later as an attachment or embedded ' \
+                   'image in 4me.',
       input_fields: lambda do |object_definitions|
         object_definitions['file_upload_input']
       end,
@@ -528,7 +528,7 @@
                         default: connection['account'],
                         optional: false,
                         control_type: 'text',
-                        hint: 'The 4me account identifier'
+                        hint: 'The 4me account identifier.'
                       })
         fields
       end
@@ -569,7 +569,7 @@
             default: connection['account'],
             optional: false,
             control_type: 'text',
-            hint: 'The 4me account identifier'
+            hint: 'The 4me account identifier.'
           },
           {
             name: 'file_name',
@@ -1438,6 +1438,64 @@
       type
     end,
 
+    field_for_type_is_sticky: lambda do |name|
+      %w[address
+         after
+         before
+         category
+         city
+         completionReason
+         country
+         createdAt
+         description
+         direction
+         disabled
+         employeeID
+         first
+         greaterThan
+         greaterThanOrEqualTo
+         id
+         impact
+         inline
+         integration
+         internal
+         internalNote
+         label
+         last
+         lessThan
+         lessThanOrEqualTo
+         location
+         managerId
+         memberId
+         name
+         negate
+         note
+         organizationId
+         ownerId
+         primaryEmail
+         protocol
+         query
+         remarks
+         serviceId
+         serviceInstanceId
+         siteId
+         size
+         source
+         sourceID
+         state
+         status
+         subject
+         supportID
+         teamId
+         templateId
+         updatedAt
+         urgent
+         uri
+         value
+         view
+         zip].include?(name)
+    end,
+
     create_field_for_type: lambda do |connection, report_problem, type, nesting_level|
       field = {
         optional: true
@@ -1609,7 +1667,7 @@
                        "#{name_prefix}_#{name}"
                      end
       field[:label] = call('labelize', name, field['isDeprecated'])
-      field[:sticky] = true
+      field[:sticky] = call('field_for_type_is_sticky', name)
       toggle_field = field[:toggle_field]
       if toggle_field.present?
         toggle_field[:name] = field[:name]
@@ -1801,10 +1859,10 @@
       case operation_type
       when 'query'
         label = 'Query'
-        hint = 'Select records to retrieve'
+        hint = 'Select records to retrieve.'
       when 'mutation'
         label = 'Mutation'
-        hint = 'Select operation to perform'
+        hint = 'Select operation to perform.'
       else
         error("Unknown action name '#{operation_type}'")
       end
@@ -1812,7 +1870,11 @@
       # append example object name to hint
       if pick_list.present?
         object_label = pick_list.first[0]
-        hint = "#{hint}, e.g. #{object_label.downcase}"
+        hint = "#{hint}, e.g. #{object_label.downcase}."
+        if operation_type == 'query'
+          hint = "#{hint.sub(/\.$/, '')}. If the query yields a GraphQL connection, obtain the values through " \
+                 "the sub query labeled 'Nodes' or 'Edges'."
+        end
       end
 
       operation_input_field = {
@@ -1858,7 +1920,7 @@
                       default: connection['account'],
                       optional: false,
                       control_type: 'text',
-                      hint: 'The 4me account identifier'
+                      hint: 'The 4me account identifier.'
                     })
 
       error(problems.join(', ')) unless problems.empty?
@@ -1912,7 +1974,8 @@
       {
         name: 'rate_limit_headers',
         label: 'Rate limit',
-        hint: 'Select objects to get additional information about',
+        hint: 'Select objects to get additional information about. ' \
+              '<a href="https://developer.4me.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
         type: 'object',
         properties: [
           {
@@ -1941,7 +2004,8 @@
       {
         name: 'cost_rate_limit_headers',
         label: 'Cost limit',
-        hint: 'Select objects to get additional information about',
+        hint: 'Select objects to get additional information about. ' \
+              '<a href="https://developer.4me.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
         type: 'object',
         properties: [
           {
@@ -2120,6 +2184,14 @@
       end.compact
 
       if nested_fields.present?
+        if nested_fields.any? { |item| item['name'] == 'errors' }
+          nested_fields = sub_fields.reject { |item| item['name'] == 'errors' }
+          input_fields << {
+            name: 'response_contains_errors',
+            sticky: true,
+            ngIf: 'input.name == ""'
+          }
+        end
         related_fields_pick_list = nested_fields.map do |sub_field|
           [
             call('labelize', sub_field['name'], sub_field['isDeprecated']),
@@ -2129,7 +2201,7 @@
         input_fields << {
           name: 'nested_fields',
           label: 'Sub queries',
-          hint: 'Select related records to retrieve',
+          hint: 'Select related records to retrieve.',
           control_type: :multiselect,
           pick_list: related_fields_pick_list,
           extends_schema: true,
@@ -2615,6 +2687,11 @@
     end,
 
     build_full_query: lambda do |field_name, input, eis, eos, operation_type|
+      if operation_type == 'mutation' && eis.any? { |obj| obj['name'] == 'response_contains_errors' }
+        nested_fields = input['nested_fields']&.split(',') || []
+        nested_fields << 'errors {message}' unless nested_fields.include?('errors')
+        input['nested_fields'] = nested_fields.join(',')
+      end
       is_object = field_name.ends_with?('{}')
       field_name = field_name[0..-3] if is_object
       if is_object
@@ -2663,12 +2740,18 @@
           nil,
           input['account']
         )
-        if is_object
-          field_name = field_name[0..-3]
-          response = result[field_name]
-          response['rate_limit_headers'] = result['rate_limit_headers']
-          response['cost_rate_limit_headers'] = result['cost_rate_limit_headers']
-          response
+        result = if is_object
+                   field_name = field_name[0..-3]
+                   response = result[field_name]
+                   response['rate_limit_headers'] = result['rate_limit_headers']
+                   response['cost_rate_limit_headers'] = result['cost_rate_limit_headers']
+                   response
+                 else
+                   result
+                 end
+
+        if operation_type == 'mutation' && result['errors']&.any? { |item| item.include?('message') }
+          error(result['errors'].map { |item| item['message'] }.join("\n"))
         else
           result
         end

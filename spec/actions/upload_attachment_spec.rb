@@ -41,7 +41,7 @@ RSpec.describe 'actions/upload_attachment', :vcr do
                             'optional' => false,
                             'sticky' => true,
                             'control_type' => 'text',
-                            'hint' => 'The 4me account identifier',
+                            'hint' => 'The 4me account identifier.',
                             'default' => 'wdc'
                           },
                           {
