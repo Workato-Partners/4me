@@ -1569,12 +1569,33 @@
             }
           )
         else # 'String', 'ID', ...
-          field = field.merge(
-            {
-              type: :string,
-              control_type: :text
-            }
+          scalar_type = call(
+            'get_schema_type',
+            connection,
+            report_problem,
+            'SCALAR',
+            type['name']
           )
+          if scalar_type['description'] =~ /\AOne of:\n \* /
+            values = scalar_type['description'].sub(/\AOne of:\n /, '')
+            values = values.scan(/ *`([^`]+)`: ([^\n]+)/).map { |item| [item[1], item[0]] }
+            values = values.sort_by { |item| item[0] }
+            field = field.merge(
+              {
+                type: :string,
+                control_type: :select,
+                pick_list: values,
+                toggle_hint: 'Select from list'
+              }
+            )
+          else
+            field = field.merge(
+              {
+                type: :string,
+                control_type: :text
+              }
+            )
+          end
         end
       when 'ENUM'
         enum_type = call(
