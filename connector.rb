@@ -27,8 +27,7 @@
         options: [
           ['Production', 'production'],
           ['Quality Assurance', 'quality_assurance'],
-          ['Demo', 'demo'],
-          ['Custom domain', 'custom_domain']
+          ['Demo', 'demo']
         ]
       },
       {
@@ -46,14 +45,6 @@
           ['United States', 'us'],
           ['Switzerland', 'ch']
         ]
-      },
-      {
-        ngIf: 'input.instance == "custom_domain"',
-        name: 'custom_domain_name',
-        label: 'The 4me domain name.',
-        hint: 'The custom domain name of the 4me instance',
-        optional: false,
-        control_type: 'text'
       },
       {
         name: 'auth_method',
@@ -100,7 +91,6 @@
       acquire: lambda do |connection|
         instance = connection['instance']
         region = connection['region']
-        custom_domain_name = connection['custom_domain_name']
 
         token_url =
           case instance
@@ -132,8 +122,6 @@
             end
           when 'demo'
             'https://oauth.4me-demo.com/token'
-          else
-            "https://oauth.#{custom_domain_name}/token"
           end
 
         request = post(token_url)
@@ -170,7 +158,6 @@
     base_uri: lambda do |connection|
       instance = connection['instance']
       region = connection['region']
-      custom_domain_name = connection['custom_domain_name']
 
       case instance
       when 'production'
@@ -201,8 +188,6 @@
         end
       when 'demo'
         'https://graphql.4me-demo.com'
-      else
-        "https://graphql.#{custom_domain_name}"
       end
     end
   },
