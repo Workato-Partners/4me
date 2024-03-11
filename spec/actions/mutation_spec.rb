@@ -1,7 +1,7 @@
 # rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
-RSpec.describe 'actions/mutation', :vcr do # rubocop:disable Metrics/BlockLength
+RSpec.describe 'actions/mutation', :vcr do
   # Spec describes the most commons blocks of an action. Remove describes that you don't need.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 

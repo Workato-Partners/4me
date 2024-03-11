@@ -254,109 +254,49 @@ RSpec.describe 'triggers/new_event', :vcr do
       )
     end
 
-    it 'app_instance.create' do
-      expect(trigger.output_fields(settings, { 'event_selection' => 'app_instance.create' })).to eq(
-        [
-          { 'name' => 'webhook_id', 'type' => 'integer' },
-          { 'name' => 'webhook_nodeID' },
-          { 'name' => 'account_id' },
-          { 'name' => 'account' },
-          { 'name' => 'custom_url' },
-          { 'name' => 'name' },
-          { 'name' => 'event' },
-          { 'name' => 'object_id', 'type' => 'integer' },
-          { 'name' => 'object_nodeID' },
-          { 'name' => 'person_id', 'type' => 'integer' },
-          { 'name' => 'person_nodeID' },
-          { 'name' => 'person_name' },
-          { 'name' => 'data', 'properties' => [
-            { 'name' => 'callback' },
-            { 'name' => 'audit_line_id', 'type' => 'integer' },
-            { 'name' => 'audit_line_nodeID' },
-            { 'name' => 'app_offering', 'properties' => [{ 'name' => 'reference' }, { 'name' => 'id', 'type' => 'integer' }, { 'name' => 'nodeID' }], 'type' => 'object' },
-            { 'name' => 'customer_account_id' },
-            { 'name' => 'disabled', 'type' => 'boolean' },
-            { 'name' => 'enabled_by_customer', 'type' => 'boolean' },
-            { 'name' => 'suspended', 'type' => 'boolean' },
-            { 'name' => 'customer_representative', 'properties' => [
-              { 'name' => 'id', 'type' => 'integer' },
-              { 'name' => 'nodeID' },
-              { 'name' => 'name' },
-              { 'name' => 'account', 'properties' => [{ 'name' => 'id' }, { 'name' => 'name' }], 'type' => 'object' }
-            ], 'type' => 'object' }
+    let(:app_instance_output_fields) do
+      [
+        { 'name' => 'webhook_id', 'type' => 'integer' },
+        { 'name' => 'webhook_nodeID' },
+        { 'name' => 'account_id' },
+        { 'name' => 'account' },
+        { 'name' => 'custom_url' },
+        { 'name' => 'name' },
+        { 'name' => 'event' },
+        { 'name' => 'object_id', 'type' => 'integer' },
+        { 'name' => 'object_nodeID' },
+        { 'name' => 'person_id', 'type' => 'integer' },
+        { 'name' => 'person_nodeID' },
+        { 'name' => 'person_name' },
+        { 'name' => 'data', 'properties' => [
+          { 'name' => 'callback' },
+          { 'name' => 'audit_line_id', 'type' => 'integer' },
+          { 'name' => 'audit_line_nodeID' },
+          { 'name' => 'app_offering', 'properties' => [{ 'name' => 'reference' }, { 'name' => 'id', 'type' => 'integer' }, { 'name' => 'nodeID' }], 'type' => 'object' },
+          { 'name' => 'customer_account_id' },
+          { 'name' => 'disabled', 'type' => 'boolean' },
+          { 'name' => 'enabled_by_customer', 'type' => 'boolean' },
+          { 'name' => 'suspended', 'type' => 'boolean' },
+          { 'name' => 'customer_representative', 'properties' => [
+            { 'name' => 'id', 'type' => 'integer' },
+            { 'name' => 'nodeID' },
+            { 'name' => 'name' },
+            { 'name' => 'account', 'properties' => [{ 'name' => 'id' }, { 'name' => 'name' }], 'type' => 'object' }
           ], 'type' => 'object' }
-        ]
-      )
+        ], 'type' => 'object' }
+      ]
+    end
+
+    it 'app_instance.create' do
+      expect(trigger.output_fields(settings, { 'event_selection' => 'app_instance.create' })).to eq(app_instance_output_fields)
     end
 
     it 'app_instance.update' do
-      expect(trigger.output_fields(settings, { 'event_selection' => 'app_instance.update' })).to eq(
-        [
-          { 'name' => 'webhook_id', 'type' => 'integer' },
-          { 'name' => 'webhook_nodeID' },
-          { 'name' => 'account_id' },
-          { 'name' => 'account' },
-          { 'name' => 'custom_url' },
-          { 'name' => 'name' },
-          { 'name' => 'event' },
-          { 'name' => 'object_id', 'type' => 'integer' },
-          { 'name' => 'object_nodeID' },
-          { 'name' => 'person_id', 'type' => 'integer' },
-          { 'name' => 'person_nodeID' },
-          { 'name' => 'person_name' },
-          { 'name' => 'data', 'properties' => [
-            { 'name' => 'callback' },
-            { 'name' => 'audit_line_id', 'type' => 'integer' },
-            { 'name' => 'audit_line_nodeID' },
-            { 'name' => 'app_offering', 'properties' => [{ 'name' => 'reference' }, { 'name' => 'id', 'type' => 'integer' }, { 'name' => 'nodeID' }], 'type' => 'object' },
-            { 'name' => 'customer_account_id' },
-            { 'name' => 'disabled', 'type' => 'boolean' },
-            { 'name' => 'enabled_by_customer', 'type' => 'boolean' },
-            { 'name' => 'suspended', 'type' => 'boolean' },
-            { 'name' => 'customer_representative', 'properties' => [
-              { 'name' => 'id', 'type' => 'integer' },
-              { 'name' => 'nodeID' },
-              { 'name' => 'name' },
-              { 'name' => 'account', 'properties' => [{ 'name' => 'id' }, { 'name' => 'name' }], 'type' => 'object' }
-            ], 'type' => 'object' }
-          ], 'type' => 'object' }
-        ]
-      )
+      expect(trigger.output_fields(settings, { 'event_selection' => 'app_instance.update' })).to eq(app_instance_output_fields)
     end
 
     it 'app_instance.delete' do
-      expect(trigger.output_fields(settings, { 'event_selection' => 'app_instance.delete' })).to eq(
-        [
-          { 'name' => 'webhook_id', 'type' => 'integer' },
-          { 'name' => 'webhook_nodeID' },
-          { 'name' => 'account_id' },
-          { 'name' => 'account' },
-          { 'name' => 'custom_url' },
-          { 'name' => 'name' },
-          { 'name' => 'event' },
-          { 'name' => 'object_id', 'type' => 'integer' },
-          { 'name' => 'object_nodeID' },
-          { 'name' => 'person_id', 'type' => 'integer' },
-          { 'name' => 'person_nodeID' },
-          { 'name' => 'person_name' },
-          { 'name' => 'data', 'properties' => [
-            { 'name' => 'callback' },
-            { 'name' => 'audit_line_id', 'type' => 'integer' },
-            { 'name' => 'audit_line_nodeID' },
-            { 'name' => 'app_offering', 'properties' => [{ 'name' => 'reference' }, { 'name' => 'id', 'type' => 'integer' }, { 'name' => 'nodeID' }], 'type' => 'object' },
-            { 'name' => 'customer_account_id' },
-            { 'name' => 'disabled', 'type' => 'boolean' },
-            { 'name' => 'enabled_by_customer', 'type' => 'boolean' },
-            { 'name' => 'suspended', 'type' => 'boolean' },
-            { 'name' => 'customer_representative', 'properties' => [
-              { 'name' => 'id', 'type' => 'integer' },
-              { 'name' => 'nodeID' },
-              { 'name' => 'name' },
-              { 'name' => 'account', 'properties' => [{ 'name' => 'id' }, { 'name' => 'name' }], 'type' => 'object' }
-            ], 'type' => 'object' }
-          ], 'type' => 'object' }
-        ]
-      )
+      expect(trigger.output_fields(settings, { 'event_selection' => 'app_instance.delete' })).to eq(app_instance_output_fields)
     end
 
     it 'app_instance.secrets-update' do
