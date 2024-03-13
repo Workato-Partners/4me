@@ -1,6 +1,7 @@
+# rubocop:disable Metrics/BlockLength
 # frozen_string_literal: true
 
-RSpec.describe 'actions/query', :vcr do # rubocop:disable Metrics/BlockLength
+RSpec.describe 'actions/query', :vcr do
   # Spec describes the most commons blocks of an action. Remove describes that you don't need.
   # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
 
@@ -25,6 +26,14 @@ RSpec.describe 'actions/query', :vcr do # rubocop:disable Metrics/BlockLength
       expect(output['rate_limit_headers']).to include('limit')
       expect(output['rate_limit_headers']).to include('remaining')
       expect(output['rate_limit_headers']).to include('reset')
+    end
+
+    it 'contains cost rate limit information' do
+      expect(output).to include('cost_rate_limit_headers')
+      expect(output['cost_rate_limit_headers']).to include('limit')
+      expect(output['cost_rate_limit_headers']).to include('cost')
+      expect(output['cost_rate_limit_headers']).to include('remaining')
+      expect(output['cost_rate_limit_headers']).to include('reset')
     end
 
     it 'contains totalCount greater than 0' do
@@ -60,3 +69,5 @@ RSpec.describe 'actions/query', :vcr do # rubocop:disable Metrics/BlockLength
     end
   end
 end
+
+# rubocop:enable Metrics/BlockLength

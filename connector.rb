@@ -15,26 +15,27 @@
         name: 'account',
         label: '4me Account',
         optional: false,
-        hint: 'The 4me account identifier'
+        hint: "You can find the 4me account identifier via 'Settings' => 'Account overview'."
       },
       {
         name: 'instance',
-        label: '4me Instance',
-        hint: 'The 4me instance',
+        label: '4me Environment',
+        hint: 'The environment of the 4me instance. ' \
+              '<a href="https://developer.4me.com/graphql/#service-url-1" target="_blank">Learn more</a>',
         optional: false,
         control_type: 'select',
         options: [
           ['Production', 'production'],
           ['Quality Assurance', 'quality_assurance'],
-          ['Demo', 'demo'],
-          ['Custom domain', 'custom_domain']
+          ['Demo', 'demo']
         ]
       },
       {
         ngIf: 'input.instance == "production" || input.instance == "quality_assurance"',
         name: 'region',
         label: '4me region',
-        hint: 'The 4me region',
+        hint: 'The region of the 4me instance. ' \
+              '<a href="https://developer.4me.com/graphql/#service-url-1" target="_blank">Learn more</a>',
         optional: false,
         control_type: 'select',
         options: [
@@ -46,17 +47,10 @@
         ]
       },
       {
-        ngIf: 'input.instance == "custom_domain"',
-        name: 'custom_domain_name',
-        label: 'Domain name',
-        hint: 'The 4me domain name',
-        optional: false,
-        control_type: 'text'
-      },
-      {
         name: 'auth_method',
+        label: 'Authentication method',
         control_type: 'select',
-        hint: 'The 4me authentication method',
+        hint: 'The 4me authentication method.',
         optional: false,
         pick_list: [
           ['Personal Access Token', 'bearer'],
@@ -67,16 +61,18 @@
         ngIf: 'input.auth_method == "bearer"',
         name: 'bearer_token',
         label: 'Personal Access Token',
-        hint: 'The 4me bearer token',
         control_type: :password,
-        optional: false
+        optional: false,
+        hint: "You can create a Personal Access Token via 'My profile' => 'Personal Access Token'. " \
+              '<a href="https://developer.4me.com/v1/#personal-access-tokens" target="_blank">Learn more</a>'
       },
       {
         ngIf: 'input.auth_method == "oauth2_client_credentials"',
         name: 'client_id',
         label: 'Client ID',
         optional: false,
-        hint: 'The 4me OAuth 2.0 client ID'
+        hint: "You can create an OAuth 2.0 client ID and secret via 'Settings' => 'OAuth Applications'. " \
+              '<a href="https://developer.4me.com/v1/oauth/client_credentials_grant" target="_blank">Learn more</a>'
       },
       {
         ngIf: 'input.auth_method == "oauth2_client_credentials"',
@@ -84,7 +80,8 @@
         label: 'Client secret',
         optional: false,
         control_type: :password,
-        hint: 'The 4me OAuth 2.0 client secret'
+        hint: "You can create an OAuth 2.0 client ID and secret via 'Settings' => 'OAuth Applications'. " \
+              '<a href="https://developer.4me.com/v1/oauth/client_credentials_grant/" target="_blank">Learn more</a>'
       }
     ],
 
@@ -94,7 +91,6 @@
       acquire: lambda do |connection|
         instance = connection['instance']
         region = connection['region']
-        custom_domain_name = connection['custom_domain_name']
 
         token_url =
           case instance
@@ -126,8 +122,6 @@
             end
           when 'demo'
             'https://oauth.4me-demo.com/token'
-          else
-            "https://oauth.#{custom_domain_name}/token"
           end
 
         request = post(token_url)
@@ -164,7 +158,6 @@
     base_uri: lambda do |connection|
       instance = connection['instance']
       region = connection['region']
-      custom_domain_name = connection['custom_domain_name']
 
       case instance
       when 'production'
@@ -195,8 +188,6 @@
         end
       when 'demo'
         'https://graphql.4me-demo.com'
-      else
-        "https://graphql.#{custom_domain_name}"
       end
     end
   },
@@ -230,7 +221,7 @@
   actions: {
     query: {
       title: 'Query records',
-      subtitle: 'Retrieve one or more records, e.g. people, configuration items, requets and workflows, in 4me.',
+      subtitle: 'Retrieve one or more records, e.g. people, configuration items, requests and workflows, in 4me.',
       help: {
         body: 'Use this action to get a single record or search all records that matches your search criteria.<br>'\
               'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
@@ -330,15 +321,15 @@
 
     upload_attachment: {
       title: 'Upload attachment',
-      subtitle: 'Upload a file which can be referenced later as an attachment or embedded' \
-                ' image in 4me.',
+      subtitle: 'Upload a file which can be referenced later as an attachment or embedded ' \
+                'image in 4me.',
       help: {
-        body: 'Upload a file which can be referenced later as an attachment or embedded image,' \
-              ' e.g. note attachments, in 4me.'
+        body: 'Upload a file which can be referenced later as an attachment or embedded image, ' \
+              'e.g. note attachments, in 4me.'
       },
       display_priority: 20,
-      description: 'Upload a file which can be referenced later as an attachment or embedded' \
-                   ' image in 4me.',
+      description: 'Upload a file which can be referenced later as an attachment or embedded ' \
+                   'image in 4me.',
       input_fields: lambda do |object_definitions|
         object_definitions['file_upload_input']
       end,
@@ -522,7 +513,7 @@
                         default: connection['account'],
                         optional: false,
                         control_type: 'text',
-                        hint: 'The 4me account identifier'
+                        hint: 'The 4me account identifier.'
                       })
         fields
       end
@@ -545,6 +536,7 @@
             operation
           )
           output_fields.insert(0, call('build_output_rate_limit_fields'))
+          output_fields.insert(1, call('build_output_cost_limit_fields'))
           output_fields
         else
           []
@@ -562,7 +554,7 @@
             default: connection['account'],
             optional: false,
             control_type: 'text',
-            hint: 'The 4me account identifier'
+            hint: 'The 4me account identifier.'
           },
           {
             name: 'file_name',
@@ -600,6 +592,37 @@
         [
           { name: 'id' },
           { name: 'name' }
+        ]
+      end
+    },
+
+    app_instance_app_offering: {
+      fields: lambda do |connection, config_fields, object_definitions|
+        [
+          { name: 'reference' },
+          { name: 'id', type: 'integer' },
+          { name: 'nodeID' }
+        ]
+      end
+    },
+
+    app_instance_application: {
+      fields: lambda do |connection, config_fields, object_definitions|
+        [
+          { name: 'nodeID' },
+          { name: 'client_id' },
+          { name: 'client_secret' }
+        ]
+      end
+    },
+
+    app_instance_policy: {
+      fields: lambda do |connection, config_fields, object_definitions|
+        [
+          { name: 'nodeID' },
+          { name: 'audience' },
+          { name: 'algorithm' },
+          { name: 'public_key' }
         ]
       end
     },
@@ -749,6 +772,56 @@
               { name: 'time_spent', type: 'integer' },
               { name: 'updated_at', type: 'date_time' },
               { name: 'account', type: 'object', properties: object_definitions['account'] }
+            ] }
+          ]
+        when 'app_instance.secrets-update'
+          [
+            { name: 'webhook_id', type: 'integer' },
+            { name: 'webhook_nodeID' },
+            { name: 'account_id' },
+            { name: 'account' },
+            { name: 'custom_url' },
+            { name: 'name' },
+            { name: 'event' },
+            { name: 'object_id', type: 'integer' },
+            { name: 'object_nodeID' },
+            { name: 'person_id', type: 'integer' },
+            { name: 'person_nodeID' },
+            { name: 'person_name' },
+            { name: 'data', type: 'object', properties: [
+              { name: 'callback' },
+              { name: 'audit_line_id', type: 'integer' },
+              { name: 'audit_line_nodeID' },
+              { name: 'app_offering', type: 'object', properties: object_definitions['app_instance_app_offering'] },
+              { name: 'customer_account_id' },
+              { name: 'application', type: 'object', properties: object_definitions['app_instance_application'] },
+              { name: 'policy', type: 'object', properties: object_definitions['app_instance_policy'] }
+            ] }
+          ]
+        when /^app_instance\./
+          [
+            { name: 'webhook_id', type: 'integer' },
+            { name: 'webhook_nodeID' },
+            { name: 'account_id' },
+            { name: 'account' },
+            { name: 'custom_url' },
+            { name: 'name' },
+            { name: 'event' },
+            { name: 'object_id', type: 'integer' },
+            { name: 'object_nodeID' },
+            { name: 'person_id', type: 'integer' },
+            { name: 'person_nodeID' },
+            { name: 'person_name' },
+            { name: 'data', type: 'object', properties: [
+              { name: 'callback' },
+              { name: 'audit_line_id', type: 'integer' },
+              { name: 'audit_line_nodeID' },
+              { name: 'app_offering', type: 'object', properties: object_definitions['app_instance_app_offering'] },
+              { name: 'customer_account_id' },
+              { name: 'disabled', type: 'boolean' },
+              { name: 'enabled_by_customer', type: 'boolean' },
+              { name: 'suspended', type: 'boolean' },
+              { name: 'customer_representative', type: 'object', properties: object_definitions['common_with_name'] }
             ] }
           ]
         else
@@ -1216,6 +1289,12 @@
             'remaining' => res_headers['x_ratelimit_remaining'],
             'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_ratelimit_reset'].to_i.seconds)
           }
+          result['cost_rate_limit_headers'] = {
+            'limit' => res_headers['x_costlimit_limit'],
+            'cost' => res_headers['x_costlimit_cost'],
+            'remaining' => res_headers['x_costlimit_remaining'],
+            'reset' => ('1970-01-01T00:00:00Z'.to_time + res_headers['x_costlimit_reset'].to_i.seconds)
+          }
           result
         end
       end
@@ -1344,6 +1423,64 @@
       type
     end,
 
+    field_for_type_is_sticky: lambda do |name|
+      %w[address
+         after
+         before
+         category
+         city
+         completionReason
+         country
+         createdAt
+         description
+         direction
+         disabled
+         employeeID
+         first
+         greaterThan
+         greaterThanOrEqualTo
+         id
+         impact
+         inline
+         integration
+         internal
+         internalNote
+         label
+         last
+         lessThan
+         lessThanOrEqualTo
+         location
+         managerId
+         memberId
+         name
+         negate
+         note
+         organizationId
+         ownerId
+         primaryEmail
+         protocol
+         query
+         remarks
+         serviceId
+         serviceInstanceId
+         siteId
+         size
+         source
+         sourceID
+         state
+         status
+         subject
+         supportID
+         teamId
+         templateId
+         updatedAt
+         urgent
+         uri
+         value
+         view
+         zip].include?(name)
+    end,
+
     create_field_for_type: lambda do |connection, report_problem, type, nesting_level|
       field = {
         optional: true
@@ -1417,12 +1554,33 @@
             }
           )
         else # 'String', 'ID', ...
-          field = field.merge(
-            {
-              type: :string,
-              control_type: :text
-            }
+          scalar_type = call(
+            'get_schema_type',
+            connection,
+            report_problem,
+            'SCALAR',
+            type['name']
           )
+          if scalar_type['description'] =~ /\AOne of:\n \* /
+            values = scalar_type['description'].sub(/\AOne of:\n /, '')
+            values = values.scan(/ *`([^`]+)`: ([^\n]+)/).map { |item| [item[1], item[0]] }
+            values = values.sort_by { |item| item[0] }
+            field = field.merge(
+              {
+                type: :string,
+                control_type: :select,
+                pick_list: values,
+                toggle_hint: 'Select from list'
+              }
+            )
+          else
+            field = field.merge(
+              {
+                type: :string,
+                control_type: :text
+              }
+            )
+          end
         end
       when 'ENUM'
         enum_type = call(
@@ -1515,7 +1673,7 @@
                        "#{name_prefix}_#{name}"
                      end
       field[:label] = call('labelize', name, field['isDeprecated'])
-      field[:sticky] = true
+      field[:sticky] = call('field_for_type_is_sticky', name)
       toggle_field = field[:toggle_field]
       if toggle_field.present?
         toggle_field[:name] = field[:name]
@@ -1707,10 +1865,10 @@
       case operation_type
       when 'query'
         label = 'Query'
-        hint = 'Select records to retrieve'
+        hint = 'Select records to retrieve.'
       when 'mutation'
         label = 'Mutation'
-        hint = 'Select operation to perform'
+        hint = 'Select operation to perform.'
       else
         error("Unknown action name '#{operation_type}'")
       end
@@ -1718,7 +1876,11 @@
       # append example object name to hint
       if pick_list.present?
         object_label = pick_list.first[0]
-        hint = "#{hint}, e.g. #{object_label.downcase}"
+        hint = "#{hint}, e.g. #{object_label.downcase}."
+        if operation_type == 'query'
+          hint = "#{hint.sub(/\.$/, '')}. If the query yields a GraphQL connection, obtain the values through " \
+                 "the sub query labeled 'Nodes' or 'Edges'."
+        end
       end
 
       operation_input_field = {
@@ -1764,7 +1926,7 @@
                       default: connection['account'],
                       optional: false,
                       control_type: 'text',
-                      hint: 'The 4me account identifier'
+                      hint: 'The 4me account identifier.'
                     })
 
       error(problems.join(', ')) unless problems.empty?
@@ -1809,6 +1971,7 @@
           schema << output_field
         end
         schema.insert(0, call('build_output_rate_limit_fields'))
+        schema.insert(1, call('build_output_cost_limit_fields'))
       end
       schema
     end,
@@ -1817,7 +1980,8 @@
       {
         name: 'rate_limit_headers',
         label: 'Rate limit',
-        hint: 'Select objects to get additional information about',
+        hint: 'Select objects to get additional information about. ' \
+              '<a href="https://developer.4me.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
         type: 'object',
         properties: [
           {
@@ -1837,6 +2001,42 @@
             label: 'Reset',
             type: 'timestamp',
             hint: 'The time at which the current rate limit window resets.'
+          }
+        ]
+      }
+    end,
+
+    build_output_cost_limit_fields: lambda do
+      {
+        name: 'cost_rate_limit_headers',
+        label: 'Cost limit',
+        hint: 'Select objects to get additional information about. ' \
+              '<a href="https://developer.4me.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
+        type: 'object',
+        properties: [
+          {
+            name: 'limit',
+            label: 'Limit',
+            type: 'integer',
+            hint: 'The maximum number of points the client is permitted to consume in a 60-minutes window.'
+          },
+          {
+            name: 'cost',
+            label: 'Cost',
+            type: 'integer',
+            hint: 'The point cost for the current call that counts against the query cost rate limit.'
+          },
+          {
+            name: 'remaining',
+            label: 'Remaining',
+            type: 'integer',
+            hint: 'The number of points remaining in the current query cost rate limit window.'
+          },
+          {
+            name: 'reset',
+            label: 'Reset',
+            type: 'timestamp',
+            hint: 'The time at which the current query cost rate limit window resets.'
           }
         ]
       }
@@ -1990,6 +2190,14 @@
       end.compact
 
       if nested_fields.present?
+        if nested_fields.any? { |item| item['name'] == 'errors' }
+          nested_fields = sub_fields.reject { |item| item['name'] == 'errors' }
+          input_fields << {
+            name: 'response_contains_errors',
+            sticky: true,
+            ngIf: 'input.name == ""'
+          }
+        end
         related_fields_pick_list = nested_fields.map do |sub_field|
           [
             call('labelize', sub_field['name'], sub_field['isDeprecated']),
@@ -1999,7 +2207,7 @@
         input_fields << {
           name: 'nested_fields',
           label: 'Sub queries',
-          hint: 'Select related records to retrieve',
+          hint: 'Select related records to retrieve.',
           control_type: :multiselect,
           pick_list: related_fields_pick_list,
           extends_schema: true,
@@ -2485,6 +2693,11 @@
     end,
 
     build_full_query: lambda do |field_name, input, eis, eos, operation_type|
+      if operation_type == 'mutation' && eis.any? { |obj| obj['name'] == 'response_contains_errors' }
+        nested_fields = input['nested_fields']&.split(',') || []
+        nested_fields << 'errors {message}' unless nested_fields.include?('errors')
+        input['nested_fields'] = nested_fields.join(',')
+      end
       is_object = field_name.ends_with?('{}')
       field_name = field_name[0..-3] if is_object
       if is_object
@@ -2533,11 +2746,18 @@
           nil,
           input['account']
         )
-        if is_object
-          field_name = field_name[0..-3]
-          response = result[field_name]
-          response['rate_limit_headers'] = result['rate_limit_headers']
-          response
+        result = if is_object
+                   field_name = field_name[0..-3]
+                   response = result[field_name]
+                   response['rate_limit_headers'] = result['rate_limit_headers']
+                   response['cost_rate_limit_headers'] = result['cost_rate_limit_headers']
+                   response
+                 else
+                   result
+                 end
+
+        if operation_type == 'mutation' && result['errors']&.any? { |item| item.include?('message') }
+          error(result['errors'].map { |item| item['message'] }.join("\n"))
         else
           result
         end
