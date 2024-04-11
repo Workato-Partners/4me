@@ -2592,6 +2592,8 @@
           value = "{#{kvs}}"
         elsif value.nil?
           value = 'null'
+        elsif control_type == 'select' && value.include?(' ')
+          value = "\"#{value}\""
         else
           value = value.to_s
         end
