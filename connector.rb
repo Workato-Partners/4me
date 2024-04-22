@@ -1570,7 +1570,13 @@
                 type: :string,
                 control_type: :select,
                 pick_list: values,
-                toggle_hint: 'Select from list'
+                toggle_hint: 'Select from list',
+                toggle_field: {
+                  type: :string,
+                  control_type: :text,
+                  toggle_hint: 'Use custom value',
+                  name: :name
+                }
               }
             )
           else
@@ -2586,6 +2592,8 @@
           value = "{#{kvs}}"
         elsif value.nil?
           value = 'null'
+        elsif control_type == 'select' && value.include?(' ')
+          value = "\"#{value}\""
         else
           value = value.to_s
         end
