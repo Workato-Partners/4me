@@ -10,7 +10,7 @@ RSpec.describe 'actions/mutation', :vcr do
 
   # This spec only works on staging because of the user ID in 'fixtures/actions/mutation/input/person_update.json'.
 
-  describe 'test person create mutation' do
+  describe 'test person update mutation' do
     let(:input) { JSON.parse(File.read('fixtures/actions/mutation/input/person_update.json')) }
     let(:expected_output) { JSON.parse(File.read('fixtures/actions/mutation/output/person_update.json')) }
     subject(:output) { connector.actions.mutation(input) }

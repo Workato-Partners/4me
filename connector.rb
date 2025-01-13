@@ -7,21 +7,21 @@
 # frozen_string_literal: true
 
 {
-  title: '4me',
+  title: 'Xurrent',
 
   connection: {
     fields: [
       {
         name: 'account',
-        label: '4me Account',
+        label: 'Xurrent Account',
         optional: false,
-        hint: "You can find the 4me account identifier via 'Settings' => 'Account overview'."
+        hint: "You can find the Xurrent account identifier via 'Settings' => 'Account overview'."
       },
       {
         name: 'instance',
-        label: '4me Environment',
-        hint: 'The environment of the 4me instance. ' \
-              '<a href="https://developer.4me.com/graphql/#service-url-1" target="_blank">Learn more</a>',
+        label: 'Xurrent Environment',
+        hint: 'The environment of the Xurrent instance. ' \
+              '<a href="https://developer.xurrent.com/graphql/#service-url-1" target="_blank">Learn more</a>',
         optional: false,
         control_type: 'select',
         options: [
@@ -33,9 +33,9 @@
       {
         ngIf: 'input.instance == "production" || input.instance == "quality_assurance"',
         name: 'region',
-        label: '4me region',
-        hint: 'The region of the 4me instance. ' \
-              '<a href="https://developer.4me.com/graphql/#service-url-1" target="_blank">Learn more</a>',
+        label: 'Xurrent region',
+        hint: 'The region of the Xurrent instance. ' \
+              '<a href="https://developer.xurrent.com/graphql/#service-url-1" target="_blank">Learn more</a>',
         optional: false,
         control_type: 'select',
         options: [
@@ -50,7 +50,7 @@
         name: 'auth_method',
         label: 'Authentication method',
         control_type: 'select',
-        hint: 'The 4me authentication method.',
+        hint: 'The Xurrent authentication method.',
         optional: false,
         pick_list: [
           ['Personal Access Token', 'bearer'],
@@ -64,7 +64,7 @@
         control_type: :password,
         optional: false,
         hint: "You can create a Personal Access Token via 'My profile' => 'Personal Access Token'. " \
-              '<a href="https://developer.4me.com/v1/#personal-access-tokens" target="_blank">Learn more</a>'
+              '<a href="https://developer.xurrent.com/v1/#personal-access-tokens" target="_blank">Learn more</a>'
       },
       {
         ngIf: 'input.auth_method == "oauth2_client_credentials"',
@@ -72,7 +72,7 @@
         label: 'Client ID',
         optional: false,
         hint: "You can create an OAuth 2.0 client ID and secret via 'Settings' => 'OAuth Applications'. " \
-              '<a href="https://developer.4me.com/v1/oauth/client_credentials_grant" target="_blank">Learn more</a>'
+              '<a href="https://developer.xurrent.com/v1/oauth/client_credentials_grant" target="_blank">Learn more</a>'
       },
       {
         ngIf: 'input.auth_method == "oauth2_client_credentials"',
@@ -81,7 +81,7 @@
         optional: false,
         control_type: :password,
         hint: "You can create an OAuth 2.0 client ID and secret via 'Settings' => 'OAuth Applications'. " \
-              '<a href="https://developer.4me.com/v1/oauth/client_credentials_grant/" target="_blank">Learn more</a>'
+              '<a href="https://developer.xurrent.com/v1/oauth/client_credentials_grant/" target="_blank">Learn more</a>'
       }
     ],
 
@@ -97,35 +97,35 @@
           when 'production'
             case region
             when 'au'
-              'https://oauth.au.4me.com/token'
+              'https://oauth.au.xurrent.com/token'
             when 'uk'
-              'https://oauth.uk.4me.com/token'
+              'https://oauth.uk.xurrent.com/token'
             when 'us'
-              'https://oauth.us.4me.com/token'
+              'https://oauth.us.xurrent.com/token'
             when 'ch'
-              'https://oauth.ch.4me.com/token'
+              'https://oauth.ch.xurrent.com/token'
             else
-              'https://oauth.4me.com/token'
+              'https://oauth.xurrent.com/token'
             end
           when 'quality_assurance'
             case region
             when 'au'
-              'https://oauth.au.4me.qa/token'
+              'https://oauth.au.xurrent.qa/token'
             when 'uk'
-              'https://oauth.uk.4me.qa/token'
+              'https://oauth.uk.xurrent.qa/token'
             when 'us'
-              'https://oauth.us.4me.qa/token'
+              'https://oauth.us.xurrent.qa/token'
             when 'ch'
-              'https://oauth.ch.4me.qa/token'
+              'https://oauth.ch.xurrent.qa/token'
             else
-              'https://oauth.4me.qa/token'
+              'https://oauth.xurrent.qa/token'
             end
           when 'demo'
-            'https://oauth.4me-demo.com/token'
+            'https://oauth.xurrent-demo.com/token'
           end
 
         request = post(token_url)
-        request.headers('x-4me-Account': connection['account'])
+        request.headers('x-xurrent-account': connection['account'])
         payload = {
           grant_type: 'client_credentials',
           client_id: connection['client_id'],
@@ -163,31 +163,31 @@
       when 'production'
         case region
         when 'au'
-          'https://graphql.au.4me.com'
+          'https://graphql.au.xurrent.com'
         when 'uk'
-          'https://graphql.uk.4me.com'
+          'https://graphql.uk.xurrent.com'
         when 'us'
-          'https://graphql.us.4me.com'
+          'https://graphql.us.xurrent.com'
         when 'ch'
-          'https://graphql.ch.4me.com'
+          'https://graphql.ch.xurrent.com'
         else
-          'https://graphql.4me.com'
+          'https://graphql.xurrent.com'
         end
       when 'quality_assurance'
         case region
         when 'au'
-          'https://graphql.au.4me.qa'
+          'https://graphql.au.xurrent.qa'
         when 'uk'
-          'https://graphql.uk.4me.qa'
+          'https://graphql.uk.xurrent.qa'
         when 'us'
-          'https://graphql.us.4me.qa'
+          'https://graphql.us.xurrent.qa'
         when 'ch'
-          'https://graphql.ch.4me.qa'
+          'https://graphql.ch.xurrent.qa'
         else
-          'https://graphql.4me.qa'
+          'https://graphql.xurrent.qa'
         end
       when 'demo'
-        'https://graphql.4me-demo.com'
+        'https://graphql.xurrent-demo.com'
       end
     end
   },
@@ -221,12 +221,12 @@
   actions: {
     query: {
       title: 'Query records',
-      subtitle: 'Retrieve one or more records, e.g. people, configuration items, requests and workflows, in 4me.',
+      subtitle: 'Retrieve one or more records, e.g. people, configuration items, requests and workflows, in Xurrent.',
       help: {
         body: 'Use this action to get a single record or search all records that matches your search criteria.<br>'\
-              'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
-              '4me automation rules or in the 4me REST API.',
-        learn_more_url: 'https://developer.4me.com/graphql/',
+              'The ID value in the Xurrent connector and the GraphQL API is the same as the nodeID value in '\
+              'Xurrent automation rules or in the Xurrent REST API.',
+        learn_more_url: 'https://developer.xurrent.com/graphql/',
         learn_more_text: 'Learn more'
       },
       display_priority: 50,
@@ -236,7 +236,7 @@
         label = name&.labelize&.downcase
         "Query <span class='provider'>" \
           "#{label || 'records'}</span> via " \
-          "<span class='provider'>4me</span>"
+          "<span class='provider'>Xurrent</span>"
       end,
       input_fields: lambda do |object_definitions|
         object_definitions['query_input']
@@ -251,12 +251,12 @@
 
     mutation: {
       title: 'Mutate records',
-      subtitle: 'Create, update or delete a record, e.g. people, configuration items, requets and workflows, in 4me.',
+      subtitle: 'Create, update or delete a record, e.g. people, configuration items, requets and workflows, in Xurrent.',
       help: {
         body: 'Use this action to create, delete or update a record.<br>'\
-              'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
-              '4me automation rules or in the 4me REST API.',
-        learn_more_url: 'https://developer.4me.com/graphql/',
+              'The ID value in the Xurrent connector and the GraphQL API is the same as the nodeID value in '\
+              'Xurrent automation rules or in the Xurrent REST API.',
+        learn_more_url: 'https://developer.xurrent.com/graphql/',
         learn_more_text: 'Learn more'
       },
       display_priority: 40,
@@ -267,11 +267,11 @@
         if label.present?
           "Perform <span class='provider'>" \
             "#{label}</span> via " \
-            "<span class='provider'>4me</span>"
+            "<span class='provider'>Xurrent</span>"
         else
           "Mutate <span class='provider'>" \
             'records</span> via ' \
-            "<span class='provider'>4me</span>"
+            "<span class='provider'>Xurrent</span>"
         end
       end,
       input_fields: lambda do |object_definitions|
@@ -287,12 +287,12 @@
 
     custom_operation: {
       title: 'Custom action',
-      subtitle: 'Provide and run a custom GraphQL operation, e.g. create a person or query people, in 4me.',
+      subtitle: 'Provide and run a custom GraphQL operation, e.g. create a person or query people, in Xurrent.',
       help: {
-        body: 'Use this action to run any 4me GraphQL operation.<br>'\
-              'The ID value in the 4me connector and the GraphQL API is the same as the nodeID value in '\
-              '4me automation rules or in the 4me REST API.',
-        learn_more_url: 'https://developer.4me.com/graphql/',
+        body: 'Use this action to run any Xurrent GraphQL operation.<br>'\
+              'The ID value in the Xurrent connector and the GraphQL API is the same as the nodeID value in '\
+              'Xurrent automation rules or in the Xurrent REST API.',
+        learn_more_url: 'https://developer.xurrent.com/graphql/',
         learn_more_text: 'Learn more'
       },
       display_priority: 30,
@@ -301,11 +301,11 @@
         if operation_name.blank?
           "Run <span class='provider'>" \
           'operation</span> via ' \
-          "<span class='provider'>4me</span>"
+          "<span class='provider'>Xurrent</span>"
         else
           "Run <span class='provider'>" \
           "#{operation_name.labelize.downcase}</span> via " \
-          "<span class='provider'>4me</span>"
+          "<span class='provider'>Xurrent</span>"
         end
       end,
       input_fields: lambda do |object_definitions|
@@ -322,14 +322,14 @@
     upload_attachment: {
       title: 'Upload attachment',
       subtitle: 'Upload a file which can be referenced later as an attachment or embedded ' \
-                'image in 4me.',
+                'image in Xurrent.',
       help: {
         body: 'Upload a file which can be referenced later as an attachment or embedded image, ' \
-              'e.g. note attachments, in 4me.'
+              'e.g. note attachments, in Xurrent.'
       },
       display_priority: 20,
       description: 'Upload a file which can be referenced later as an attachment or embedded ' \
-                   'image in 4me.',
+                   'image in Xurrent.',
       input_fields: lambda do |object_definitions|
         object_definitions['file_upload_input']
       end,
@@ -513,7 +513,7 @@
                         default: connection['account'],
                         optional: false,
                         control_type: 'text',
-                        hint: 'The 4me account identifier.'
+                        hint: 'The Xurrent account identifier.'
                       })
         fields
       end
@@ -554,7 +554,7 @@
             default: connection['account'],
             optional: false,
             control_type: 'text',
-            hint: 'The 4me account identifier.'
+            hint: 'The Xurrent account identifier.'
           },
           {
             name: 'file_name',
@@ -1265,7 +1265,7 @@
       }.compact
 
       request = post('')
-      request.headers('x-4me-Account': account)
+      request.headers('x-xurrent-account': account)
       request = request.payload(payload)
       handle_errors = lambda do |response|
         error = call('get_error_message', connection, response)
@@ -1924,7 +1924,7 @@
         fields.concat operation_field_input_schema
       end
 
-      ## Add 4me Account field
+      ## Add Xurrent Account field
       fields.insert(0, {
                       name: 'account',
                       label: 'Account ID',
@@ -1932,7 +1932,7 @@
                       default: connection['account'],
                       optional: false,
                       control_type: 'text',
-                      hint: 'The 4me account identifier.'
+                      hint: 'The Xurrent account identifier.'
                     })
 
       error(problems.join(', ')) unless problems.empty?
@@ -1987,7 +1987,7 @@
         name: 'rate_limit_headers',
         label: 'Rate limit',
         hint: 'Select objects to get additional information about. ' \
-              '<a href="https://developer.4me.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
+              '<a href="https://developer.xurrent.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
         type: 'object',
         properties: [
           {
@@ -2017,7 +2017,7 @@
         name: 'cost_rate_limit_headers',
         label: 'Cost limit',
         hint: 'Select objects to get additional information about. ' \
-              '<a href="https://developer.4me.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
+              '<a href="https://developer.xurrent.com/graphql/#service-quotas-1" target="_blank">Learn more</a>',
         type: 'object',
         properties: [
           {
@@ -2561,7 +2561,7 @@
       optional = field['optional']
 
       if value.is_a?(String) && value.binary?
-        error("Sending binary data is currently not supported (field '#{field['label']}')")
+        error("Sending binary data is not supported (field '#{field['label']}')")
       end
 
       # treat blank string for optional fields as nil
@@ -2776,19 +2776,19 @@
   triggers: {
     new_event: {
       title: 'Webhook event',
-      subtitle: 'Triggers when a selected 4me object, e.g person, is created/updated, ' \
+      subtitle: 'Triggers when a selected Xurrent object, e.g person, is created/updated, ' \
                 'or on an automation rule notification.',
       description: lambda do |input, picklist_label|
-        "New <span class='provider'>webhook</span> in <span class='provider'>4me</span>"
+        "New <span class='provider'>webhook</span> in <span class='provider'>Xurrent</span>"
       end,
 
       help: lambda do |input, picklist_label, connection, webhook_base_url|
         <<~HTML
-          Creates a job when an event is received from 4me. To set this webhook up,
-          you will need to register the webhook below in 4me under "settings" => "webhooks". <br><br>
+          Creates a job when an event is received from Xurrent. To set this webhook up,
+          you will need to register the webhook below in Xurrent under "settings" => "webhooks". <br><br>
           <b>Webhook endpoint URL</b>
           <b class="tips__highlight">#{webhook_base_url}</b>
-          More information on how to use 4me automation rules and webhooks can be found on the <a href="https://developer.4me.com/v1/workato_connector/" target="_blank">4me developer pages</a>.
+          More information on how to use Xurrent automation rules and webhooks can be found on the <a href="https://developer.xurrent.com/v1/workato_connector/" target="_blank">Xurrent developer pages</a>.
         HTML
       end,
 
